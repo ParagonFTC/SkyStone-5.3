@@ -41,6 +41,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.firstinspires.ftc.teamcode.Subsystems.DriveConstants.BASE_CONSTRAINTS;
+import static org.firstinspires.ftc.teamcode.Subsystems.DriveConstants.MOTOR_VELO_PID;
 import static org.firstinspires.ftc.teamcode.Subsystems.DriveConstants.TRACK_WIDTH;
 import static org.firstinspires.ftc.teamcode.Subsystems.DriveConstants.encoderTicksToInches;
 import static org.firstinspires.ftc.teamcode.Subsystems.DriveConstants.kV;
@@ -78,22 +79,6 @@ public class RoadRunnerDriveTest extends MecanumDrive {
     private List<ExpansionHubMotor> motors;
     private BNO055IMU imu;
 
-    private ExpansionHubServo leftHook, rightHook;
-
-    public static double leftHookEngagedPosition = 0.4;
-    public static double rightHookEngagedPosition = 0.6;
-    public static double leftHookDisengagedPosition = 1;
-    public static double rightHookDisengagedPosition = 0;
-
-    private ExpansionHubMotor intakeLeft, intakeRight;
-    private ExpansionHubServo pusher;
-
-    public static double armPosition = 0;
-    public static double disarmPosition = 0.8;
-
-    private ExpansionHubMotor lift;
-    public static final double LIFT_TICKS_PER_REV = 537.6;
-
     public RoadRunnerDriveTest(HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH);
 
@@ -128,25 +113,15 @@ public class RoadRunnerDriveTest extends MecanumDrive {
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
 
         for (ExpansionHubMotor motor : motors) {
-            //motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
 
-        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightRear.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //TODO: tune velocity PID Coefficients
-
-        leftHook = hardwareMap.get(ExpansionHubServo.class, "leftHook");
-        rightHook = hardwareMap.get(ExpansionHubServo.class, "rightHook");
-
-        intakeLeft = hardwareMap.get(ExpansionHubMotor.class, "intakeLeft");
-        intakeRight = hardwareMap.get(ExpansionHubMotor.class, "intakeRight");
-        intakeLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        pusher = hardwareMap.get(ExpansionHubServo.class, "pusher");
-
-        lift = hardwareMap.get(ExpansionHubMotor.class, "lift");
+        setPIDCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, MOTOR_VELO_PID);
     }
 
     public TrajectoryBuilder trajectoryBuilder() {
@@ -297,7 +272,7 @@ public class RoadRunnerDriveTest extends MecanumDrive {
     public void setPIDCoefficients(DcMotor.RunMode runMode, PIDCoefficients coefficients) {
         for (ExpansionHubMotor motor : motors) {
             motor.setPIDFCoefficients(runMode, new PIDFCoefficients(
-                    coefficients.kP, coefficients.kI, coefficients.kD, 1
+                    coefficients.kP, coefficients.kI, coefficients.kD, 0
             ));
         }
     }
@@ -328,52 +303,5 @@ public class RoadRunnerDriveTest extends MecanumDrive {
     @Override
     protected double getRawExternalHeading() {
         return imu.getAngularOrientation().firstAngle;
-    }
-
-    public void engageHooks() {
-        leftHook.setPosition(leftHookEngagedPosition);
-        rightHook.setPosition(rightHookEngagedPosition);
-    }
-
-    public void disengageHooks() {
-        leftHook.setPosition(leftHookDisengagedPosition);
-        rightHook.setPosition(rightHookDisengagedPosition);
-    }
-
-    public void armPusher() {
-        pusher.setPosition(armPosition);
-    }
-
-    public void disarmPusher() {
-        pusher.setPosition(disarmPosition);
-    }
-
-    public void setPusherPosition(double position) {
-        pusher.setPosition(position);
-    }
-
-    public void setIntakePower(double power) {
-        intakeLeft.setPower(power);
-        intakeRight.setPower(power);
-    }
-
-    public void raiseLift() {
-        lift.setTargetPosition(1010);
-        lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        lift.setPower(1);
-        while (!Thread.currentThread().isInterrupted() && lift.isBusy()) {
-            update();
-        }
-    }
-
-    public void lowerLift() {
-        lift.setTargetPosition(0);
-        lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        lift.setPower(1);
-        /*
-        while (!Thread.currentThread().isInterrupted() && lift.isBusy()) {
-            update();
-        }
-        */
     }
 }

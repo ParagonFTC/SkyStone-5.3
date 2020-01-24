@@ -47,7 +47,7 @@ public abstract class SkystoneAutoOpMode extends LinearOpMode {
 
         setup();
 
-        while (!isStarted()) {
+        while (!isStarted() && !isStopRequested()) {
             position = getSkystonePosition();
             telemetry.addData("Skystone Position", position);
             telemetry.update();

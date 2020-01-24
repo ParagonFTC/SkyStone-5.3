@@ -20,6 +20,7 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
 import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
 import com.acmerobotics.roadrunner.trajectory.constraints.MecanumConstraints;
+import com.acmerobotics.roadrunner.util.Angle;
 import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.motors.RevRobotics20HdHexMotor;
@@ -53,8 +54,10 @@ import java.util.List;
 
 @Config
 public class MecanumDriveWrapper extends MecanumDrive implements Subsystem {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0,0,0);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(0,0,0);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(5,1,1);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(0.1,0,0);
+
+    public static final PIDCoefficients MOTOR_VELO_PID = null;
 
     public enum Mode {
         IDLE,
@@ -106,7 +109,7 @@ public class MecanumDriveWrapper extends MecanumDrive implements Subsystem {
      * forces acceleration-limited profiling).
      */
     public static DriveConstraints BASE_CONSTRAINTS = new DriveConstraints(
-            50.0, 30.0, 0.0,
+            50.0, 20.0, 0.0,
             Math.toRadians(180.0), Math.toRadians(180.0), 0.0
     );
 
@@ -125,6 +128,7 @@ public class MecanumDriveWrapper extends MecanumDrive implements Subsystem {
         super(kV, kA, kStatic, TRACK_WIDTH);
 
         dashboard = FtcDashboard.getInstance();
+        dashboard.setTelemetryTransmissionInterval(25);
         clock = NanoClock.system();
 
         mode = Mode.IDLE;
@@ -205,7 +209,19 @@ public class MecanumDriveWrapper extends MecanumDrive implements Subsystem {
         return wheelPositions;
     }
 
+    public List<Double> getWheelVelocities() {
+        RevBulkData bulkData = hub1.getBulkInputData();
 
+        if (bulkData == null) {
+            return Arrays.asList(0.0, 0.0, 0.0, 0.0);
+        }
+
+        List<Double> wheelVelocities = new ArrayList<>();
+        for (ExpansionHubMotor motor : motors) {
+            wheelVelocities.add(encoderTicksToInches(bulkData.getMotorVelocity(motor)));
+        }
+        return wheelVelocities;
+    }
 
     public static double encoderTicksToInches(int ticks) {
         return WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV;
@@ -312,21 +328,24 @@ public class MecanumDriveWrapper extends MecanumDrive implements Subsystem {
 
         switch (mode) {
             case IDLE:
-                //do nothing lol
-                setDriveSignal(new DriveSignal());
+                // do nothing
                 break;
             case TURN: {
                 double t = clock.seconds() - turnStart;
 
                 MotionState targetState = turnProfile.get(t);
+
+                turnController.setTargetPosition(targetState.getX());
+
                 double targetOmega = targetState.getV();
                 double targetAlpha = targetState.getA();
                 double correction = turnController.update(currentPose.getHeading(), targetOmega);
 
-                setDriveSignal(new DriveSignal(
-                        new Pose2d(0, 0, targetOmega + correction),
-                        new Pose2d(0, 0, targetAlpha)
-                ));
+                setDriveSignal(new DriveSignal(new Pose2d(
+                        0, 0, targetOmega + correction
+                ), new Pose2d(
+                        0, 0, targetAlpha
+                )));
 
                 if (t >= turnProfile.duration()) {
                     mode = Mode.IDLE;

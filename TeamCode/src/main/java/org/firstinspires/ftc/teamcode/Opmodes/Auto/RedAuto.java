@@ -28,6 +28,7 @@ public class RedAuto extends SkystoneAutoOpMode {
     protected void setup() {
         robot.drive.disengageHooks();
         robot.outtake.cycleWrist();
+        robot.drive.setPoseEstimate(new Pose2d());
         //robot.outtake.setWristPosition(0.2);
     }
 
@@ -50,12 +51,13 @@ public class RedAuto extends SkystoneAutoOpMode {
                 robot.drive.followTrajectorySync(
                         robot.drive.trajectoryBuilder()
                                 .reverse()
-                                .splineTo(new Pose2d(-44,-16,Math.toRadians(-60)))
-                                .addMarker(() -> {robot.intake.toggleIntake(); return Unit.INSTANCE;})
-                                .strafeTo(new Vector2d(-64,-2))
+                                .splineTo(new Pose2d(-18,0,0))
+                                .splineTo(new Pose2d(-48,-16,Math.toRadians(-45)))
+                                //.addMarker(() -> {robot.intake.setSpeed(0.7); return Unit.INSTANCE;})
+                                //.splineTo(new Pose2d(-64,0,Math.toRadians(-45)))
                                 .build()
                 );
-                robot.drive.setPoseEstimate(new Pose2d(-64,-2,Math.toRadians(-60)));
+                robot.drive.setPoseEstimate(new Pose2d(-64,-2,Math.toRadians(-45)));
                 break;
             case CENTER:
                 robot.drive.followTrajectorySync(
@@ -70,6 +72,7 @@ public class RedAuto extends SkystoneAutoOpMode {
                 robot.drive.setPoseEstimate(new Pose2d(-60,0,Math.toRadians(-55)));
                 break;
         }
+        /*
         sleep(500);
         robot.intake.setSpeed(0);
         robot.outtake.cycleWrist();
@@ -104,5 +107,6 @@ public class RedAuto extends SkystoneAutoOpMode {
                         .forward(56)
                         .build()
         );
+        */
     }
 }

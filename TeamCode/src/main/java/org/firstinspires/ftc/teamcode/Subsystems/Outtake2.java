@@ -20,8 +20,8 @@ public class Outtake2 implements Subsystem {
     ExpansionHubServo wristLeft;
     ExpansionHubServo wristRight;
     public static double wristDeployPosition = 0.9;
-    public static double wristGrabPosition = 0.01;
-    public static double wristIdlePosition = 0.15;
+    public static double wristGrabPosition = 0.0;
+    public static double wristIdlePosition = 0.2;
     public static double wristLiftPosition = 0.3;
     public static double wristDelay = 0.5;
 
@@ -191,7 +191,6 @@ public class Outtake2 implements Subsystem {
             case DEPLOY:
                 break;
         }
-        if (!lift.isBusy()) mode = Mode.OPEN_LOOP;
     }
 
     @Override
