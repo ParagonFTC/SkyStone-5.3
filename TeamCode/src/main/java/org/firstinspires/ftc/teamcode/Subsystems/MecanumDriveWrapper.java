@@ -54,10 +54,10 @@ import java.util.List;
 
 @Config
 public class MecanumDriveWrapper extends MecanumDrive implements Subsystem {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(5,1,1);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0,0,0);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(0.1,0,0);
 
-    public static final PIDCoefficients MOTOR_VELO_PID = null;
+    public static final PIDCoefficients MOTOR_VELO_PID = new PIDCoefficients(30,0.05,0.9);
 
     public enum Mode {
         IDLE,
@@ -96,7 +96,7 @@ public class MecanumDriveWrapper extends MecanumDrive implements Subsystem {
      * motor encoders or have elected not to use them for velocity control, these values should be
      * empirically tuned.
      */
-    public static double kV = 1.0 / rpmToVelocity(getMaxRpm());
+    public static double kV = 1.5 / rpmToVelocity(getMaxRpm());
     public static double kA = 0;
     public static double kStatic = 0;
 
@@ -109,14 +109,14 @@ public class MecanumDriveWrapper extends MecanumDrive implements Subsystem {
      * forces acceleration-limited profiling).
      */
     public static DriveConstraints BASE_CONSTRAINTS = new DriveConstraints(
-            50.0, 20.0, 0.0,
+            50.0, 30.0, 0.0,
             Math.toRadians(180.0), Math.toRadians(180.0), 0.0
     );
 
     public static double leftHookEngagedPosition = 0;
     public static double rightHookEngagedPosition = 1;
     public static double leftHookDisengagedPosition = 1;
-    public static double rightHookDisengagedPosition = 0;
+    public static double rightHookDisengagedPosition = 0.3;
 
     private ExpansionHubEx hub1;
     private ExpansionHubMotor leftFront, leftBack, rightBack, rightFront;

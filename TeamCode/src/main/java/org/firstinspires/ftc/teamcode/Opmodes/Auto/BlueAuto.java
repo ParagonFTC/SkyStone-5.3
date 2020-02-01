@@ -27,7 +27,7 @@ public class BlueAuto extends SkystoneAutoOpMode{
     protected void setup() {
         robot.drive.disengageHooks();
         robot.outtake.cycleWrist();
-        robot.outtake.setWristPosition(0.23);
+        robot.drive.setPoseEstimate(new Pose2d());
     }
 
     @Override
@@ -38,69 +38,76 @@ public class BlueAuto extends SkystoneAutoOpMode{
                 robot.drive.followTrajectorySync(
                         robot.drive.trajectoryBuilder()
                                 .reverse()
-                                .splineTo(new Pose2d(-44,0,Math.toRadians(45)))
-                                .addMarker(() -> {robot.intake.toggleIntake(); return Unit.INSTANCE;})
-                                .splineTo(new Pose2d(-64,-14,Math.toRadians(45)))
+                                .splineTo(new Pose2d(-36,-4,Math.toRadians(30)))
+                                .addMarker(() -> {robot.intake.setSpeed(0.8); return Unit.INSTANCE;})
+                                .strafeTo(new Vector2d(-48,-4))
+                                .strafeTo(new Vector2d(-48,-12))
                                 .build()
                 );
-                robot.drive.setPoseEstimate(new Pose2d(-64,-14,Math.toRadians(45)));
+                robot.drive.setPoseEstimate(new Pose2d(-46,-13,Math.toRadians(55)));
                 break;
             case RIGHT:
                 robot.drive.followTrajectorySync(
                         robot.drive.trajectoryBuilder()
                                 .reverse()
-                                .splineTo(new Pose2d(-44,18,Math.toRadians(45)))
-                                .addMarker(() -> {robot.intake.toggleIntake(); return Unit.INSTANCE;})
-                                .splineTo(new Pose2d(-64,6,Math.toRadians(45)))
+                                .splineTo(new Pose2d(-32,-8,Math.toRadians(30)))
+                                .addMarker(() -> {robot.intake.setSpeed(0.8); return Unit.INSTANCE;})
+                                .strafeTo(new Vector2d(-48,-8))
+                                .strafeTo(new Vector2d(-48,-16))
                                 .build()
                 );
-                robot.drive.setPoseEstimate(new Pose2d(-64,6,Math.toRadians(45)));
+                robot.drive.setPoseEstimate(new Pose2d(-48,-16,Math.toRadians(55)));
                 break;
             case CENTER:
                 robot.drive.followTrajectorySync(
                         robot.drive.trajectoryBuilder()
                                 .reverse()
-                                .splineTo(new Pose2d(-44,8,Math.toRadians(45)))
-                                .addMarker(() -> {robot.intake.toggleIntake(); return Unit.INSTANCE;})
-                                .splineTo(new Pose2d(-64,-6,Math.toRadians(45)))
+                                .splineTo(new Pose2d(-36,2,Math.toRadians(30)))
+                                .addMarker(() -> {robot.intake.setSpeed(0.8); return Unit.INSTANCE;})
+                                .strafeTo(new Vector2d(-48,2))
+                                .strafeTo(new Vector2d(-48,-8))
                                 .build()
                 );
-                robot.drive.setPoseEstimate(new Pose2d(-64,-6,Math.toRadians(45)));
+                robot.drive.setPoseEstimate(new Pose2d(-46,-8,Math.toRadians(55)));
                 break;
         }
         sleep(500);
+
         robot.intake.setSpeed(0);
         robot.outtake.cycleWrist();
         robot.drive.followTrajectorySync(
                 robot.drive.trajectoryBuilder()
-                        .splineTo(new Pose2d(-36,28,Math.toRadians(90)))
-                        .strafeTo(new Vector2d(-40,68))
-                        .splineTo(new Pose2d(-76,96,Math.toRadians(170)))
+                        .addMarker(1,() -> {robot.intake.setSpeed(-1); return Unit.INSTANCE;})
+                        .addMarker(2, () -> {robot.intake.setSpeed(0); return Unit.INSTANCE;})
+                        .splineTo(new Pose2d(-36,64,Math.toRadians(90)))
+                        .splineTo(new Pose2d(-60,105,Math.toRadians(170)))
+                        .forward(6)
                         .build()
         );
         robot.drive.engageHooks();
-        robot.drive.setPoseEstimate(new Pose2d(-76,96,Math.toRadians(170)));
+        robot.drive.setPoseEstimate(new Pose2d(-66,105,Math.toRadians(170)));
         sleep(500);
         robot.drive.followTrajectorySync(
                 robot.drive.trajectoryBuilder()
                         .reverse()
-                        .splineTo(new Pose2d(-36,60,Math.toRadians(80)))
-                        .setReversed(false)
-                        .splineTo(new Pose2d(-24,108,Math.toRadians(60)))
+                        .forward(12)
+                        .splineTo(new Pose2d(-44,65,Math.toRadians(80)))
                         .build()
         );
-        robot.drive.setPoseEstimate(new Pose2d(-36,108,Math.toRadians(110)));
         robot.drive.disengageHooks();
         robot.outtake.cycleWrist();
+        sleep(100);
         robot.outtake.cycleWrist();
         sleep(1000);
         robot.outtake.cycleWrist();
-        robot.outtake.liftPositionDown();
+        robot.drive.setPoseEstimate(new Pose2d(-40,65,Math.toRadians(90)));
         robot.drive.followTrajectorySync(
                 robot.drive.trajectoryBuilder()
+                        .forward(36)
                         .reverse()
-                        .forward(56)
+                        .splineTo(new Pose2d(-60,55,Math.toRadians(90)))
                         .build()
         );
+        robot.drive.setPoseEstimate(new Pose2d(-42,55,Math.toRadians(90)));
     }
 }

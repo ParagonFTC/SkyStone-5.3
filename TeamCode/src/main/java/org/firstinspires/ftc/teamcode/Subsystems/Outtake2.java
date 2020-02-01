@@ -21,9 +21,10 @@ public class Outtake2 implements Subsystem {
     ExpansionHubServo wristRight;
     public static double wristDeployPosition = 0.9;
     public static double wristGrabPosition = 0.0;
-    public static double wristIdlePosition = 0.2;
-    public static double wristLiftPosition = 0.3;
+    public static double wristIdlePosition = 0.12;
+    public static double wristLiftPosition = 0.2;
     public static double wristDelay = 0.5;
+    public static double wristDropDelay = 1;
 
     ExpansionHubServo grabber;
     public static double grabberArmPosition = 1;
@@ -106,8 +107,9 @@ public class Outtake2 implements Subsystem {
 
     public void raiseLift() {
         mode = Mode.RUN_TO_POSITION;
-        if (liftPosition != 7) lift.setTargetPosition(-(liftPosition - 1) * encoderInchesToTicks(LIFT_ITERATION));
+        if (liftPosition != 7 && liftPosition != 1) lift.setTargetPosition(-(liftPosition - 1) * encoderInchesToTicks(LIFT_ITERATION) - encoderInchesToTicks(1));
         if (liftPosition == 7) lift.setTargetPosition(-encoderInchesToTicks(LIFT_ITERATION * 6 + 1));
+        if (liftPosition == 1) lift.setTargetPosition(0);
         if (lift.getMode() != DcMotor.RunMode.RUN_TO_POSITION) lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         lift.setPower(1);
     }
@@ -159,6 +161,11 @@ public class Outtake2 implements Subsystem {
         }
     }
 
+    public void deploy() {
+        setWristPosition(wristDeployPosition);
+        wristPosition = WristPosition.DEPLOY;
+    }
+
     public double getLiftPosition() {
         return liftPosition * 4;
     }
@@ -176,7 +183,7 @@ public class Outtake2 implements Subsystem {
         switch (wristPosition) {
             case IDLE:
                 disarmGrabber();
-                if (clock.seconds() > (startTimestamp + wristDelay) && clock.seconds() < startTimestamp + wristDelay + 0.5) {
+                if (clock.seconds() > (startTimestamp + wristDropDelay)) {
                     lowerLift();
                 }
                 break;

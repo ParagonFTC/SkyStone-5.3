@@ -121,7 +121,6 @@ public class RoadRunnerDriveTest extends MecanumDrive {
         rightRear.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //TODO: tune velocity PID Coefficients
-        setPIDCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, MOTOR_VELO_PID);
     }
 
     public TrajectoryBuilder trajectoryBuilder() {

@@ -73,7 +73,7 @@ public class CustomSkystoneDetector extends DogeCVDetector {
         // Current result
         Rect bestRect = foundRect;
         double bestDifference = Double.MAX_VALUE; // MAX_VALUE since less difference = better
-
+/*
         // Loop through the contours and score them, searching for the best result
         for(MatOfPoint cont : contoursYellow){
             double score = calculateScore(cont); // Get the difference score using the scoring API
@@ -88,7 +88,7 @@ public class CustomSkystoneDetector extends DogeCVDetector {
                 bestRect = rect;
             }
         }
-
+*/
         Imgproc.rectangle(blackMask, bestRect.tl(), bestRect.br(), new Scalar(255,255,255), 1, Imgproc.LINE_4, 0);
         blackFilter.process(workingMat.clone(), blackMask);
         List<MatOfPoint> contoursBlack = new ArrayList<>();
