@@ -68,7 +68,7 @@ public class BlueAuto extends SkystoneAutoOpMode{
                                 .strafeTo(new Vector2d(-48,-8))
                                 .build()
                 );
-                robot.drive.setPoseEstimate(new Pose2d(-46,-8,Math.toRadians(55)));
+                robot.drive.setPoseEstimate(new Pose2d(-48,-4,Math.toRadians(55)));
                 break;
         }
         sleep(500);
@@ -80,12 +80,12 @@ public class BlueAuto extends SkystoneAutoOpMode{
                         .addMarker(1,() -> {robot.intake.setSpeed(-1); return Unit.INSTANCE;})
                         .addMarker(2, () -> {robot.intake.setSpeed(0); return Unit.INSTANCE;})
                         .splineTo(new Pose2d(-36,64,Math.toRadians(90)))
-                        .splineTo(new Pose2d(-60,105,Math.toRadians(170)))
+                        .splineTo(new Pose2d(-60,95,Math.toRadians(180)))
                         .forward(6)
                         .build()
         );
         robot.drive.engageHooks();
-        robot.drive.setPoseEstimate(new Pose2d(-66,105,Math.toRadians(170)));
+        robot.drive.setPoseEstimate(new Pose2d(-66,95,Math.toRadians(180)));
         sleep(500);
         robot.drive.followTrajectorySync(
                 robot.drive.trajectoryBuilder()
@@ -105,7 +105,7 @@ public class BlueAuto extends SkystoneAutoOpMode{
                 robot.drive.trajectoryBuilder()
                         .forward(36)
                         .reverse()
-                        .splineTo(new Pose2d(-60,55,Math.toRadians(90)))
+                        .forward(44)
                         .build()
         );
         robot.drive.setPoseEstimate(new Pose2d(-42,55,Math.toRadians(90)));

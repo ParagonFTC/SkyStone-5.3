@@ -82,12 +82,12 @@ public class RedAuto extends SkystoneAutoOpMode {
                         .addMarker(1,() -> {robot.intake.setSpeed(-1); return Unit.INSTANCE;})
                         .addMarker(2, () -> {robot.intake.setSpeed(0); return Unit.INSTANCE;})
                         .splineTo(new Pose2d(-36,-64,Math.toRadians(-90)))
-                        .splineTo(new Pose2d(-60,-105,Math.toRadians(-170)))
+                        .splineTo(new Pose2d(-48,-105,Math.toRadians(-170)))
                         .forward(6)
                         .build()
         );
         robot.drive.engageHooks();
-        robot.drive.setPoseEstimate(new Pose2d(-66,-105,Math.toRadians(-170)));
+        robot.drive.setPoseEstimate(new Pose2d(-54,-105,Math.toRadians(-170)));
         sleep(500);
         robot.drive.followTrajectorySync(
                 robot.drive.trajectoryBuilder()
@@ -107,7 +107,7 @@ public class RedAuto extends SkystoneAutoOpMode {
                 robot.drive.trajectoryBuilder()
                         .forward(36)
                         .reverse()
-                        .splineTo(new Pose2d(-60,-55,Math.toRadians(-90)))
+                        .forward(55)
                         .build()
         );
         robot.drive.setPoseEstimate(new Pose2d(-42,-55,Math.toRadians(-90)));
