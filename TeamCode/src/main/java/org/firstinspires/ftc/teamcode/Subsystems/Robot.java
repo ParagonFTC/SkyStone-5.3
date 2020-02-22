@@ -21,6 +21,7 @@ public class Robot implements OpModeManagerNotifier.Notifications, GlobalWarning
     public MecanumDriveWrapper drive;
     public Intake intake;
     public Outtake2 outtake;
+    public SideGrippers sideGrippers;
     private List<Subsystem> subsystems;
     private List<Subsystem> subsystemsWithProblems;
 
@@ -78,6 +79,12 @@ public class Robot implements OpModeManagerNotifier.Notifications, GlobalWarning
             Log.w(TAG, "skipping Outtake");
         }
 
+        try {
+            sideGrippers = new SideGrippers(opMode.hardwareMap);
+        } catch (IllegalArgumentException e) {
+            Log.w(TAG, "skipping side grippers");
+        }
+
 
         Activity activity = (Activity) opMode.hardwareMap.appContext;
         opModeManager = OpModeManagerImpl.getOpModeManagerOfActivity(activity);
@@ -92,6 +99,7 @@ public class Robot implements OpModeManagerNotifier.Notifications, GlobalWarning
         //subsystems.add(drive);
         subsystems.add(intake);
         subsystems.add(outtake);
+        subsystems.add(sideGrippers);
     }
 
     public void start() {
