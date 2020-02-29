@@ -116,7 +116,7 @@ public class MecanumDriveWrapper extends MecanumDrive implements Subsystem {
     public static double leftHookEngagedPosition = 0;
     public static double rightHookEngagedPosition = 1;
     public static double leftHookDisengagedPosition = 1;
-    public static double rightHookDisengagedPosition = 0.3;
+    public static double rightHookDisengagedPosition = 0;
 
     private ExpansionHubEx hub1;
     private ExpansionHubMotor leftFront, leftBack, rightBack, rightFront;

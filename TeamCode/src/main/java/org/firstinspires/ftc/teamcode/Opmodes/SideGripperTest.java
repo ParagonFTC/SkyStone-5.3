@@ -19,6 +19,7 @@ public class SideGripperTest extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         StickyGamepad stickyGamepad1 = new StickyGamepad(gamepad1);
         Robot robot = new Robot(this);
+        robot.start();
         waitForStart();
         while (opModeIsActive()) {
             stickyGamepad1.update();

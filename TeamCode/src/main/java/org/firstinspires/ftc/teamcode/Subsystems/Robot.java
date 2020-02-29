@@ -96,7 +96,6 @@ public class Robot implements OpModeManagerNotifier.Notifications, GlobalWarning
 
         subsystemsWithProblems = new ArrayList<>();
         RobotLog.registerGlobalWarningSource(this);
-        //subsystems.add(drive);
         subsystems.add(intake);
         subsystems.add(outtake);
         subsystems.add(sideGrippers);
