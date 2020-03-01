@@ -167,7 +167,7 @@ public class Outtake2 implements Subsystem {
                 lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 liftPosition ++;
                 liftState = LiftState.RAISED;
-                //mode = Mode.RUN_TO_POSITION;
+                mode = Mode.RUN_TO_POSITION;
                 liftPositionController.reset();
                 liftPositionController.setTargetPosition(-(liftPosition - 1) * encoderInchesToTicks(LIFT_ITERATION) - encoderInchesToTicks(1));
 
@@ -180,7 +180,7 @@ public class Outtake2 implements Subsystem {
                 break;
             case DEPLOY:
                 liftPositionController.reset();
-                //mode = Mode.RUN_TO_POSITION;
+                mode = Mode.RUN_TO_POSITION;
                 liftPositionController.setTargetPosition(-(liftPosition - 1) * encoderInchesToTicks(LIFT_ITERATION) - encoderInchesToTicks(2));
                 startTimestamp = clock.seconds();
                 setWristPosition(wristIdlePosition);
