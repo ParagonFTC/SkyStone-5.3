@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.util.Angle;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.MovingStatistics;
 
 import org.firstinspires.ftc.robotcore.internal.system.Misc;
@@ -16,8 +17,8 @@ import org.firstinspires.ftc.teamcode.Subsystems.Robot;
 @Config
 @Autonomous
 public class TrackWidthTuner extends LinearOpMode {
-    public static double ANGLE = 180; // deg
-    public static int NUM_TRIALS = 5;
+    public static double ANGLE = 90; // deg
+    public static int NUM_TRIALS = 10;
     public static int DELAY = 1000; // ms
 
     @Override
@@ -25,6 +26,8 @@ public class TrackWidthTuner extends LinearOpMode {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         Robot robot = new Robot(this);
+        robot.drive.setEncoderMode(true);
+        robot.drive.setPIDCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,MecanumDriveWrapper.MOTOR_VELO_PID);
 
         telemetry.addLine("Press play to begin the track width tuner routine");
         telemetry.addLine("Make sure your robot has enough clearance to turn smoothly");

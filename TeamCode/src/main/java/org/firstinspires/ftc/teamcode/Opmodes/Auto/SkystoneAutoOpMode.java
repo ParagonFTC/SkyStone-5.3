@@ -57,7 +57,8 @@ public abstract class SkystoneAutoOpMode extends LinearOpMode {
 
         camera.stopStreaming();
 
-        AutoTransitioner.transitionOnStop(this, "Teleop");
+        //uncomment this line when auto is competition ready ;)
+        //AutoTransitioner.transitionOnStop(this, "Teleop");
 
         waitForStart();
 

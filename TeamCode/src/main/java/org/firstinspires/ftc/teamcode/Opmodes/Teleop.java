@@ -50,8 +50,8 @@ public class Teleop extends OpMode {
             if (Math.abs(t) == 1) t *= 0.3;
             else  t *= 10.0/3;
         }
-        if (gamepad1.right_stick_x != 0) robot.drive.setDrivePower(new Pose2d(0,0, Math.abs(t) * gamepad1.right_stick_x));
-        else robot.drive.setDrivePower(new Pose2d(t*gamepad1.left_stick_y,-t*gamepad1.left_stick_x,0));
+        if (gamepad1.right_stick_x != 0) robot.drive.setDrivePower(new Pose2d(0,0, -Math.abs(t) * gamepad1.right_stick_x));
+        else robot.drive.setDrivePower(new Pose2d(t*gamepad1.left_stick_y,t*gamepad1.left_stick_x,0));
         robot.intake.setSpeed(0.8*gamepad1.left_trigger);
         if (gamepad1.left_bumper) {
             robot.intake.setSpeed(-1);
@@ -81,10 +81,8 @@ public class Teleop extends OpMode {
         //telemetry.addData("switch mode engaged", t);
         //telemetry.addData("wrist position", robot.outtake.getWristPosition());
         park.setPower(gamepad2.left_trigger);
-        //telemetry.addData("lift position", robot.outtake.getLiftPosition());
-        //telemetry.addData("dpad up", gamepad2.dpad_up);
-        //telemetry.addData("dpad down", gamepad2.dpad_down);
-        //telemetry.addData("lift mode", robot.outtake.getMode());
+        telemetry.addData("lift position", robot.outtake.getLiftPosition());
+        telemetry.addData("lift mode", robot.outtake.getMode());
 
         if (gamepad2.left_bumper) park.setPower(-1);
     }

@@ -55,7 +55,7 @@ import java.util.List;
 @Config
 public class MecanumDriveWrapper extends MecanumDrive implements Subsystem {
     public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0,0,0);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(0.1,0,0);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(0.01,0,0);
 
     public static final PIDCoefficients MOTOR_VELO_PID = new PIDCoefficients(30,0.05,0.9);
 
@@ -88,7 +88,7 @@ public class MecanumDriveWrapper extends MecanumDrive implements Subsystem {
 
     public static double WHEEL_RADIUS = 1.9685;
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (motor) speed
-    public static double TRACK_WIDTH = 20;
+    public static double TRACK_WIDTH = 14.98;
 
     /*
      * These are the feedforward parameters used to model the drive motor behavior. If you are using
@@ -113,10 +113,10 @@ public class MecanumDriveWrapper extends MecanumDrive implements Subsystem {
             Math.toRadians(180.0), Math.toRadians(180.0), 0.0
     );
 
-    public static double leftHookEngagedPosition = 0;
-    public static double rightHookEngagedPosition = 1;
-    public static double leftHookDisengagedPosition = 1;
-    public static double rightHookDisengagedPosition = 0;
+    public static double leftHookEngagedPosition = 1;
+    public static double rightHookEngagedPosition = 0;
+    public static double leftHookDisengagedPosition = 0;
+    public static double rightHookDisengagedPosition = 1;
 
     private ExpansionHubEx hub1;
     private ExpansionHubMotor leftFront, leftBack, rightBack, rightFront;
@@ -164,8 +164,8 @@ public class MecanumDriveWrapper extends MecanumDrive implements Subsystem {
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
 
-        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //TODO: tune velocity PID Coefficients
     }
@@ -337,9 +337,10 @@ public class MecanumDriveWrapper extends MecanumDrive implements Subsystem {
 
                 turnController.setTargetPosition(targetState.getX());
 
+                double correction = turnController.update(currentPose.getHeading());
+
                 double targetOmega = targetState.getV();
                 double targetAlpha = targetState.getA();
-                double correction = turnController.update(currentPose.getHeading(), targetOmega);
 
                 setDriveSignal(new DriveSignal(new Pose2d(
                         0, 0, targetOmega + correction

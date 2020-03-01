@@ -15,7 +15,7 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 @TeleOp
 public class DogeCVTest extends LinearOpMode {
     CustomSkystoneDetector detector;
-    OpenCvCamera phoneCam;
+    OpenCvInternalCamera phoneCam;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -26,6 +26,8 @@ public class DogeCVTest extends LinearOpMode {
         phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
 
         phoneCam.openCameraDevice();
+        phoneCam.setFlashlightEnabled(true);
+        phoneCam.setRecordingHint(true);
 
         phoneCam.setPipeline(detector);
 

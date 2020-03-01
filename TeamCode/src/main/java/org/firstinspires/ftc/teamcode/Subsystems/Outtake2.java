@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.acmerobotics.roadrunner.control.PIDFController;
 import com.acmerobotics.roadrunner.util.NanoClock;
+import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -28,19 +29,22 @@ public class Outtake2 implements Subsystem {
     ExpansionHubServo wristRight;
     public static double wristDeployPosition = 0.6;
     public static double wristGrabPosition = 0.17;
-    public static double wristIdlePosition = 0.2;
-    public static double wristLiftPosition = 0.2;
+    public static double wristIdlePosition = 0.25;
+    public static double wristLiftPosition = 0.25;
     public static double wristDelay = 0.5;
     public static double wristDropDelay = 1;
 
     ExpansionHubServo grabber;
-    public static double grabberArmPosition = 0.95;
+    public static double grabberArmPosition = 1;
     public static double grabberDisarmPosition = 0.6;
     public static double grabberCapPosition = 0.17;
 
+    RevTouchSensor limit;
+
     public enum Mode {
         OPEN_LOOP,
-        RUN_TO_POSITION
+        RUN_TO_POSITION,
+        RESET
     }
 
     public enum WristPosition {
@@ -68,7 +72,7 @@ public class Outtake2 implements Subsystem {
         lift = hardwareMap.get(ExpansionHubMotor.class, "lift");
         lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        lift.setDirection(DcMotorSimple.Direction.REVERSE);
+        //lift.setDirection(DcMotorSimple.Direction.REVERSE);
 
         liftPositionController = new PIDFController(LiftPIDCoefficients,0,0,0, (x) -> liftKG);
         liftPositionController.setOutputBounds(-1,1);
@@ -81,6 +85,8 @@ public class Outtake2 implements Subsystem {
 
         grabber = hardwareMap.get(ExpansionHubServo.class, "grabber");
 
+        limit = hardwareMap.get(RevTouchSensor.class, "limit");
+
         mode = Mode.OPEN_LOOP;
         wristPosition = WristPosition.IDLE;
         liftState = LiftState.LOWERED;
@@ -91,7 +97,8 @@ public class Outtake2 implements Subsystem {
 
     public void setLiftPower(double power) {
         if (mode == Mode.OPEN_LOOP) {
-            lift.setPower(power);
+            if (power == 0 && liftState == LiftState.RAISED) lift.setPower(0.01);
+            else lift.setPower(power);
         }
     }
 
@@ -157,11 +164,10 @@ public class Outtake2 implements Subsystem {
                 break;
             case GRAB:
                 //liftPositionUp();
-                lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 liftPosition ++;
                 liftState = LiftState.RAISED;
-                mode = Mode.RUN_TO_POSITION;
+                //mode = Mode.RUN_TO_POSITION;
                 liftPositionController.reset();
                 liftPositionController.setTargetPosition(-(liftPosition - 1) * encoderInchesToTicks(LIFT_ITERATION) - encoderInchesToTicks(1));
 
@@ -173,7 +179,8 @@ public class Outtake2 implements Subsystem {
                 wristPosition = WristPosition.DEPLOY;
                 break;
             case DEPLOY:
-                mode = Mode.RUN_TO_POSITION;
+                liftPositionController.reset();
+                //mode = Mode.RUN_TO_POSITION;
                 liftPositionController.setTargetPosition(-(liftPosition - 1) * encoderInchesToTicks(LIFT_ITERATION) - encoderInchesToTicks(2));
                 startTimestamp = clock.seconds();
                 setWristPosition(wristIdlePosition);
@@ -187,7 +194,7 @@ public class Outtake2 implements Subsystem {
     }
 
     public double getLiftPosition() {
-        return liftPosition * 4;
+        return encoderTicksToInches(lift.getCurrentPosition());
     }
 
     public static double encoderTicksToInches (double ticks) {
@@ -202,16 +209,22 @@ public class Outtake2 implements Subsystem {
     public void update() {
         if (mode == Mode.RUN_TO_POSITION) {
             lift.setPower(liftPositionController.update(lift.getCurrentPosition()));
+        } else if (mode == Mode.RESET) {
+            if (limit.isPressed()) {
+                lift.setPower(0);
+                lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                mode = Mode.OPEN_LOOP;
+            } else {
+                lift.setPower(1);
+            }
         }
         switch (wristPosition) {
             case IDLE:
                 disarmGrabber();
                 if (Math.abs(liftPositionController.getLastError()) < 5) setWristPosition(wristIdlePosition);
-                if (liftState == LiftState.LOWERED && Math.abs(liftPositionController.getLastError()) < 5 && liftPosition > 2) {
-                    mode = Mode.OPEN_LOOP;
-                }
                 if (clock.seconds() > (startTimestamp + wristDropDelay) && liftState != LiftState.LOWERED) {
-                    liftPositionController.setTargetPosition(0);
+                    mode = Mode.RESET;
                     liftState = LiftState.LOWERED;
                 }
                 break;
@@ -225,10 +238,12 @@ public class Outtake2 implements Subsystem {
                 //raiseLift();
                 if (Math.abs(liftPositionController.getLastError()) < 20) {
                     setWristPosition(wristDeployPosition);
+                } else {
+                    setWristPosition(wristLiftPosition);
                 }
                 break;
             case DEPLOY:
-
+                setWristPosition(wristDeployPosition);
                 break;
         }
     }

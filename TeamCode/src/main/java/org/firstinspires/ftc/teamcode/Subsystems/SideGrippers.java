@@ -12,14 +12,14 @@ public class SideGrippers implements Subsystem {
 
     public static double leftWristRetractPosition = 0.85;
     public static double rightWristRetractPosition = 0.3;
-    public static double leftWristHoldPosition = 0.7;
-    public static double rightWristHoldPosition = 0.45;
+    public static double leftWristHoldPosition = 0.5;
+    public static double rightWristHoldPosition = 0.6;
     public static double leftWristDeployPosition = 0.15;
     public static double rightWristDeployPosition = 0.99;
 
     public static double leftGripperRetractPosition = 0.6;
     public static double rightGripperRetractPosition = 0.4;
-    public static double leftGripperGripPosition = 0.4;
+    public static double leftGripperGripPosition = 0.45;
     public static double rightGripperGripPosition = 0.6;
     public static double leftGripperReleasePosition = 0;
     public static double rightGripperReleasePosition = 1;
@@ -41,7 +41,9 @@ public class SideGrippers implements Subsystem {
         RETRACT,
         HOLD,
         GRIP,
-        RELEASE
+        RELEASE,
+        RELEASE_2,
+        HOLD_2
     }
 
     public SideGrippers(HardwareMap hardwareMap) {
@@ -79,17 +81,22 @@ public class SideGrippers implements Subsystem {
     public void cycleGripper() {
         switch (position) {
             case RETRACT:
-            case HOLD:
-                wristStartTimestamp = clock.seconds();
+            case HOLD_2:
                 position = GripperPosition.RELEASE;
                 break;
             case RELEASE:
-
                 position = GripperPosition.GRIP;
                 break;
             case GRIP:
-
                 position = GripperPosition.HOLD;
+                break;
+            case HOLD:
+                wristStartTimestamp = clock.seconds();
+                position = GripperPosition.RELEASE_2;
+                break;
+            case RELEASE_2:
+                wristStartTimestamp = clock.seconds();
+                position = GripperPosition.HOLD_2;
                 break;
         }
     }
@@ -105,11 +112,19 @@ public class SideGrippers implements Subsystem {
                         break;
                     case RELEASE:
                         rightWrist.setPosition(rightWristDeployPosition);
-                        if (clock.seconds() > wristStartTimestamp + wristDelay) rightGripper.setPosition(rightGripperReleasePosition);
+                        rightGripper.setPosition(rightGripperReleasePosition);
                         break;
                     case GRIP:
                         rightWrist.setPosition(rightWristDeployPosition);
                         rightGripper.setPosition(rightGripperGripPosition);
+                        break;
+                    case RELEASE_2:
+                        rightWrist.setPosition(rightWristDeployPosition);
+                        if (clock.seconds() > wristStartTimestamp + wristDelay) rightGripper.setPosition(rightGripperReleasePosition);
+                        break;
+                    case HOLD_2:
+                        rightWrist.setPosition(rightWristHoldPosition);
+                        if (clock.seconds() > wristStartTimestamp + wristDelay) rightGripper.setPosition(rightGripperGripPosition);
                         break;
                 }
                 break;
@@ -121,11 +136,20 @@ public class SideGrippers implements Subsystem {
                         break;
                     case RELEASE:
                         leftWrist.setPosition(leftWristDeployPosition);
-                        if (clock.seconds() > wristStartTimestamp + wristDelay) leftGripper.setPosition(leftGripperReleasePosition);
+                        leftGripper.setPosition(leftGripperReleasePosition);
                         break;
                     case GRIP:
                         leftWrist.setPosition(leftWristDeployPosition);
                         leftGripper.setPosition(leftGripperGripPosition);
+                        break;
+                    case RELEASE_2:
+                        leftWrist.setPosition(rightWristDeployPosition);
+                        if (clock.seconds() > wristStartTimestamp + wristDelay) leftGripper.setPosition(rightGripperReleasePosition);
+                        break;
+                    case HOLD_2:
+                        leftWrist.setPosition(rightWristHoldPosition);
+                        if (clock.seconds() > wristStartTimestamp + wristDelay) leftGripper.setPosition(rightGripperGripPosition);
+                        break;
                 }
                 break;
         }
