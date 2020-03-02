@@ -75,14 +75,21 @@ public class Teleop extends OpMode {
             } else {
                 robot.outtake.setWristPosition(gamepad2.right_trigger);
             }
-        } else if (stickyGamepad2.x) robot.outtake.cycleWrist();
+        } else if (stickyGamepad2.x) {
+            robot.outtake.cycleWrist();
+        }
         if (stickyGamepad2.y) robot.outtake.deploy();
         if (gamepad2.dpad_left) robot.outtake.cap();
         //telemetry.addData("switch mode engaged", t);
-        //telemetry.addData("wrist position", robot.outtake.getWristPosition());
+        telemetry.addData("wrist position", robot.outtake.getWristPosition());
         park.setPower(gamepad2.left_trigger);
         telemetry.addData("lift position", robot.outtake.getLiftPosition());
+
+        telemetry.addData("lift target position", robot.outtake.getLiftTargetPosition());
+        telemetry.addData("lift stages", robot.outtake.liftPosition);
         telemetry.addData("lift mode", robot.outtake.getMode());
+        telemetry.addData("power", robot.outtake.power);
+        telemetry.addData("controlleroutput", robot.outtake.controlleroutput);
 
         if (gamepad2.left_bumper) park.setPower(-1);
     }
