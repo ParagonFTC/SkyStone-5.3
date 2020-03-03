@@ -250,8 +250,14 @@ public class Outtake2 implements Subsystem {
                 liftPosition ++;
                 //moving to lift position
                 startTimestamp = clock.seconds();
+               // wristPosition = WristPosition.PRE_LIFT;
+                wristPosition = WristPosition.LIFT;
+                liftControllerSetPosition();
                 setWristPosition(wristLiftPosition);
-                wristPosition = WristPosition.PRE_LIFT;
+
+                /* start lifting */
+                startTimestamp = clock.seconds();
+                liftControllerSetPosition();
                 break;
             case LIFT_DONE:
                 wristPosition = WristPosition.DEPLOY;
@@ -348,6 +354,7 @@ public class Outtake2 implements Subsystem {
                     /* start lifting */
                     startTimestamp = clock.seconds();
                     liftControllerSetPosition();
+
 
                 }
                 break;
