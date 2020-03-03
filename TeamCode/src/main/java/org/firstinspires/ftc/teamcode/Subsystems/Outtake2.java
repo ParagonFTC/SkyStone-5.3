@@ -21,7 +21,7 @@ public class Outtake2 implements Subsystem {
     public static final double LIFT_ITERATION = 4.0;
     public static final double PULLEY_RADIUS = 2.0/2;
     public static final double TICKS_PER_REV = 537.6;
-    public static final double kp = 0.6; // rev 0.006,
+    public static final double kp = 0.8; // rev 0.6,
     public static final double ki = 0.001;
     public static final double kD = 0.0;
     private PIDFController liftPositionController;
@@ -33,18 +33,20 @@ public class Outtake2 implements Subsystem {
 
     ExpansionHubServo wristLeft;
     ExpansionHubServo wristRight;
-    public static double wristDeployPosition = 0.6;
+    public static double wristDeployPosition = 0.7; // 0.6
     public static double wristGrabPosition = 0.17;
-    public static double wristIdlePosition = 0.22;
-    public static double wristLiftPosition = 0.40;   // 0.22
+    public static double wristIdlePosition = 0.25; //prev, 0.22
+    public static double wristLiftPosition = 0.35;   // 0.22
     public static double wristDelay = 0.5;
-    public static double liftUpTimeout = 1.0 ;
-    public static double wristDropDelay = 1;
+    public static double liftUpTimeout = 1.0;
+    public static double LiftDropDelay = 1.0;
 
     ExpansionHubServo grabber;
     public static double grabberArmPosition = 0.98;
     public static double grabberDisarmPosition = 0.6;
     public static double grabberCapPosition = 0.17;
+
+    public static double adjustStep = 0.5; // 1 inch
 
     RevTouchSensor limit;
 
@@ -57,8 +59,15 @@ public class Outtake2 implements Subsystem {
 
     public enum WristPosition {
         GRAB,
+        GRAB_DONE,
+        PRE_LIFT,
         LIFT,
+        LIFT_DONE,
         DEPLOY,
+        DEPLOY_DONE,
+        PRE_DROP,
+        DROP,
+        DROP_DONE,
         IDLE
     }
 
@@ -94,8 +103,8 @@ public class Outtake2 implements Subsystem {
 
         wristLeft = hardwareMap.get(ExpansionHubServo.class, "wristLeft");
         wristRight = hardwareMap.get(ExpansionHubServo.class, "wristRight");
-        wristLeft.setPwmRange(new PwmControl.PwmRange(500,1500));
-        wristRight.setPwmRange(new PwmControl.PwmRange(500,1500));
+        wristLeft.setPwmRange(new PwmControl.PwmRange(500,2500));
+        wristRight.setPwmRange(new PwmControl.PwmRange(500,2500));
         wristLeft.setDirection(Servo.Direction.REVERSE);
 
         grabber = hardwareMap.get(ExpansionHubServo.class, "grabber");
@@ -132,8 +141,9 @@ public class Outtake2 implements Subsystem {
     }
 
     public void setWristPosition(double position) {
+        double right = (position - 0.17) *.94 + 0.15;
         wristLeft.setPosition(position);
-        wristRight.setPosition(position);
+        wristRight.setPosition(right);
     }
 
     public WristPosition getWristPosition() {
@@ -160,9 +170,13 @@ public class Outtake2 implements Subsystem {
 
         liftPositionController.reset();
         lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        position = (liftPosition - 1) * encoderInchesToTicks(LIFT_ITERATION) + encoderInchesToTicks(1);
-        position = position * pulley_adjust;
-        //lift.setTargetPosition((int) position);
+        if (liftPosition <= 0) {
+            position = 0;
+            liftPosition = 0;
+        } else {
+            position = (liftPosition - 1) * encoderInchesToTicks(LIFT_ITERATION) + encoderInchesToTicks(1.6);
+            position = position * pulley_adjust;
+        }
         liftPositionController.setTargetPosition(position);
     }
 
@@ -190,10 +204,9 @@ public class Outtake2 implements Subsystem {
         return power;
     }
 
-    public void raiseLift() {
-        // mode = Mode.RUN_TO_POSITION;
-        //if (liftState == LiftState.RAISED)liftPositionController.setTargetPosition(-(liftPosition - 1) * encoderInchesToTicks(LIFT_ITERATION) - encoderInchesToTicks(1));
-        lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    public void raiseLift(double step) {
+
+        //liftControllerAdjustPosition(step);
         liftControllerSetPosition();
     }
 
@@ -204,16 +217,16 @@ public class Outtake2 implements Subsystem {
 
     public void liftPositionUp() {
         if (liftPosition != 8) liftPosition ++;
-        raiseLift();
+        raiseLift(adjustStep);
     }
 
     public void liftPositionDown() {
-        if (liftPosition != 1) liftPosition --;
-        raiseLift();
+        if (liftPosition != 0) liftPosition --;
+        raiseLift(- adjustStep);
     }
 
     public void cap() {
-        if (wristPosition == WristPosition.DEPLOY)
+        if (wristPosition == WristPosition.DEPLOY_DONE)
         grabber.setPosition(grabberCapPosition);
     }
 
@@ -229,35 +242,42 @@ public class Outtake2 implements Subsystem {
                 disarmGrabber();
                 setWristPosition(wristGrabPosition);
                 break;
-            case GRAB:
+            case GRAB_DONE:
                 liftPosition ++;
-                //raise first,  so it will not touch bottom
+                //moving to lift position
                 startTimestamp = clock.seconds();
-               // liftControllerAdjustPosition(1);
                 setWristPosition(wristLiftPosition);
-                wristPosition = WristPosition.LIFT;
+                wristPosition = WristPosition.PRE_LIFT;
                 break;
-            case LIFT:
+            case LIFT_DONE:
                 wristPosition = WristPosition.DEPLOY;
+                setWristPosition(wristDeployPosition);
                 startTimestamp = clock.seconds();
-                liftControllerSetPosition();
-                {
-                    //setWristPosition(wristDeployPosition);
-                    wristPosition = WristPosition.DEPLOY;
-                }
 
                 break;
-            case DEPLOY:
-               // liftControllerAdjustPosition(1);
+            case DEPLOY_DONE:
+                //waiting for grab to release
                 if (grabstate == GrabState.IDLE) {
-                    liftPositionController.reset();
+                    liftControllerAdjustPosition(3);
+                    //liftPositionController.reset();
                     //mode = Mode.OPEN_LOOP;
                     startTimestamp = clock.seconds();
-                    //setWristPosition(wristLiftPosition);
-                    setWristPosition(wristIdlePosition);
-                    wristPosition = WristPosition.IDLE;
+                    setWristPosition(wristLiftPosition);
+                    //setWristPosition(wristIdlePosition);
+                    wristPosition = WristPosition.PRE_DROP;
                 }
                 break;
+            case DROP_DONE:
+                disarmGrabber();
+                mode = Mode.IDLE;
+                lift.setPower(0);
+                lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                liftPositionController.setTargetPosition(0);
+                setWristPosition(wristIdlePosition);
+                wristPosition = WristPosition.IDLE;
+                break;
+                default:
+                    break;
         }
     }
 
@@ -289,64 +309,77 @@ public class Outtake2 implements Subsystem {
             power = positionToPower(liftPositionController.update(lift.getCurrentPosition()));
             lift.setPower(power);
         } else if (this.mode == Mode.RESET) {
-            // if (limit.isPressed()) {
+            if (limit.isPressed()) {
                 lift.setPower(0);
                 lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 liftPositionController.setTargetPosition(0);
                  mode = Mode.RUN_TO_POSITION;
-            //} else {
-            //lift.setPower(1);
-            //}
+                wristPosition = WristPosition.DROP_DONE;
+                liftState = LiftState.LOWERED;
+            } else {
+              lift.setPower(-0.6);
+            }
         }
         switch (wristPosition) {
             case IDLE:
-                if (clock.seconds() > (startTimestamp + wristDelay)) {
-                   // mode = Mode.RESET;
-                    if (liftState != LiftState.LOWERED) {
-                        this.mode = Mode.IDLE;
-                        lift.setPower(-0.2);
-                        liftPositionController.setTargetPosition(0);
-                        liftState = LiftState.LOWERED;
-                        disarmGrabber();
-                        startTimestamp = clock.seconds();
-                        setWristPosition(wristIdlePosition);
-                    } else {
-                        //lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                      //  liftPositionController.setTargetPosition(0);
-
-                    }
-
-                }
                 if (liftState != LiftState.LOWERED) {
                     lift.setPower(-0.2);
-                    liftPositionController.setTargetPosition(0);
                 }
                 break;
             case GRAB:
                 // setWristPosition(wristGrabPosition);
                 if (clock.seconds() > (startTimestamp + wristDelay)) {
                     armGrabber();
-                    liftState = LiftState.RAISED;
-                    if (liftPosition >  1) {
-                        liftControllerSetPosition();
-                    }
+                    wristPosition = WristPosition.GRAB;
+                    //liftState = LiftState.RAISED;
+                    wristPosition = WristPosition.GRAB_DONE;
+                }
+                break;
+            case PRE_LIFT:
+                if (clock.seconds() > (startTimestamp + wristDelay)) {
+                    wristPosition = WristPosition.LIFT;
+
+                    /* start lifting */
+                    startTimestamp = clock.seconds();
+                    liftControllerSetPosition();
+
                 }
                 break;
             case LIFT:
-                /*
-                if (Math.abs(liftPositionController.getLastError()) < 20 || clock.seconds() > (startTimestamp + wristDelay)) {
-                    setWristPosition(wristDeployPosition);
-                    wristPosition = WristPosition.DEPLOY;
-
-                } */
-                //raiseLift();
+                if (Math.abs(liftPositionController.getLastError()) < 20 || clock.seconds() > (startTimestamp + liftUpTimeout)) {
+                    wristPosition = WristPosition.LIFT_DONE;
+                }
 
                 break;
             case DEPLOY:
-                if (Math.abs(liftPositionController.getLastError()) < 20 || clock.seconds() > (startTimestamp + wristDelay)) {
-                    setWristPosition(wristDeployPosition);
+                if (clock.seconds() > (startTimestamp + wristDelay)) {
+                    wristPosition = WristPosition.DEPLOY_DONE;
                 }
+                break;
+            case PRE_DROP:
+                if (clock.seconds() > (startTimestamp + 0.8)) {
+                    setWristPosition(wristLiftPosition);
+                    this.mode = Mode.RESET;
+                    wristPosition = WristPosition.DROP;
+                    startTimestamp = clock.seconds();
+                   // lift.setPower(-1);
+                    //liftPositionController.reset();
+                    //lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    //liftPositionController.setTargetPosition(0);
+                }
+                break;
+            case DROP:
+              //  if (Math.abs(liftPositionController.getLastError()) < 20 || clock.seconds() > (startTimestamp + LiftDropDelay)) {
+                if (clock.seconds() > (startTimestamp + LiftDropDelay)) {
+                    this.mode = Mode.RESET;
+
+                    wristPosition = WristPosition.DROP_DONE;
+                    liftState = LiftState.LOWERED;
+                }
+                break;
+
+            default:
                 break;
         }
     }
