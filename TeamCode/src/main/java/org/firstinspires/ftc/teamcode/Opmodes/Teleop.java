@@ -65,7 +65,8 @@ public class Teleop extends OpMode {
         if (stickyGamepad2.dpad_up) robot.outtake.liftPositionUp();
         else if (stickyGamepad2.dpad_down) robot.outtake.liftPositionDown();
 
-        if (gamepad2.a) robot.outtake.armGrabber();
+        //if (gamepad2.a) robot.outtake.armGrabber();
+        if (gamepad2.a) robot.outtake.backToIdle();
         if (gamepad2.b) robot.outtake.disarmGrabber();
         if (gamepad2.right_bumper) {
             if (gamepad2.y) {

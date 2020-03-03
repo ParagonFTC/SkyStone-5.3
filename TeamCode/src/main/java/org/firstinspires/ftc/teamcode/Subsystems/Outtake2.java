@@ -291,6 +291,21 @@ public class Outtake2 implements Subsystem {
         }
     }
 
+    public void backToIdle() {
+
+        switch (wristPosition) {
+            case GRAB_DONE:
+            case LIFT_DONE:
+                liftPosition --;
+                startTimestamp = clock.seconds();
+                setWristPosition(wristLiftPosition);
+                wristPosition = WristPosition.PRE_DROP;
+                break;
+            default:
+                break;
+        }
+    }
+
     public void deploy() {
         wristPosition = WristPosition.DEPLOY;
     }
@@ -395,7 +410,6 @@ public class Outtake2 implements Subsystem {
                     wristPosition = WristPosition.IDLE;
                     mode = Mode.RUN_TO_POSITION;
                     liftState = LiftState.LOWERED;
-
 
                 }
                 break;
