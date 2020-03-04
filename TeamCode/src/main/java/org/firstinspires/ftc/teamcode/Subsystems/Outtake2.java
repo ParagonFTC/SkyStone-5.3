@@ -46,7 +46,7 @@ public class Outtake2 implements Subsystem {
     public static double grabberDisarmPosition = 0.6;
     public static double grabberCapPosition = 0.17;
 
-    public static double adjustStep = 0.5; // 1 inch
+    public static double adjustStep = 0.9; // 1 inch
 
     RevTouchSensor limit;
 
@@ -174,9 +174,9 @@ public class Outtake2 implements Subsystem {
             position = 0;
             liftPosition = 0;
         } else if (liftPosition == 1) {
-            position =  encoderInchesToTicks(2);
+            position =  encoderInchesToTicks(1.6);
          } else {
-            position = (liftPosition - 1) * encoderInchesToTicks(LIFT_ITERATION) + encoderInchesToTicks(1);
+            position = (liftPosition - 1) * encoderInchesToTicks(LIFT_ITERATION) + encoderInchesToTicks(1.8);
             position = position * pulley_adjust;
         }
         liftPositionController.setTargetPosition(position);
@@ -248,10 +248,13 @@ public class Outtake2 implements Subsystem {
                 break;
             case GRAB_DONE:
                 liftPosition ++;
+                if (liftPosition > 8) {
+                    liftPosition = 1;
+                }
                 //moving to lift position
                 startTimestamp = clock.seconds();
-                setWristPosition(wristLiftPosition);
                 wristPosition = WristPosition.PRE_LIFT;
+                setWristPosition(wristLiftPosition);
                 break;
             case LIFT_DONE:
                 wristPosition = WristPosition.DEPLOY;
@@ -282,6 +285,23 @@ public class Outtake2 implements Subsystem {
                 break;
                 default:
                     break;
+        }
+    }
+
+    public void backToIdle() {
+        liftPosition --;
+        switch (wristPosition) {
+
+            case DEPLOY_DONE:
+                liftControllerAdjustPosition(3);
+            case GRAB_DONE:
+            case LIFT_DONE:
+                startTimestamp = clock.seconds();
+                setWristPosition(wristLiftPosition);
+                wristPosition = WristPosition.PRE_DROP;
+                break;
+            default:
+                break;
         }
     }
 
@@ -349,6 +369,7 @@ public class Outtake2 implements Subsystem {
                     startTimestamp = clock.seconds();
                     liftControllerSetPosition();
 
+
                 }
                 break;
             case LIFT:
@@ -388,7 +409,6 @@ public class Outtake2 implements Subsystem {
                     wristPosition = WristPosition.IDLE;
                     mode = Mode.RUN_TO_POSITION;
                     liftState = LiftState.LOWERED;
-
 
                 }
                 break;
