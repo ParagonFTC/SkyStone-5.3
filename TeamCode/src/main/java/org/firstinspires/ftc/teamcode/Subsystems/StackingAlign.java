@@ -13,20 +13,24 @@ public class  StackingAlign implements Subsystem {
     private Robot robot;
     public static PIDCoefficients foundationDistanceCoefficients = new PIDCoefficients(-0.05,0,0);
     public static PIDCoefficients foundationAngleCoefficients = new PIDCoefficients(-1,0,0);
+    public static PIDCoefficients StackCoefficients = new PIDCoefficients(-0.05,0,0);
     public static double foundationAlignDistance = 6.5;
+    public static double stackAlignDistance = 11;
+    public static double stackAlignBound = 0.4;
     public static final double TOF_SENSOR_DISTANCE = 10.3950008;
     public static final double TOF_ERR_MAX =  6.0;
     private PIDFController foundationDistanceController;
     private PIDFController foundationAngleController;
+    private PIDFController stackAlignController;
     public  boolean do_align = false;
     public double verticalCorrection = 0;
-    public double horizintalCorrection = 0;
+    public double horizontalCorrection = 0;
     public double angelCorrection = 0;
-    public double d3, d4;
-    NanoClock clock;
-    double startTimestamp = 0;
+    public double d1, d2, d3, d4;
+    //NanoClock clock;
+    //double startTimestamp = 0;
     int count = 0;
-    boolean skip_horizontal = true;
+    boolean skip_horizontal = false;
 
     Rev2mDistanceSensor TOF1;
     Rev2mDistanceSensor TOF2;
@@ -41,23 +45,28 @@ public class  StackingAlign implements Subsystem {
         TOF4 = hardwareMap.get(Rev2mDistanceSensor.class, "TOF4");
         foundationDistanceController = new PIDFController(foundationDistanceCoefficients);
         foundationAngleController = new PIDFController(foundationAngleCoefficients);
+        stackAlignController = new  PIDFController(StackCoefficients);
+
+        stackAlignController.setOutputBounds(-stackAlignBound, stackAlignBound);
 
         foundationDistanceController.setTargetPosition(foundationAlignDistance);
         foundationAngleController.setTargetPosition(0);
+        stackAlignController.setTargetPosition(stackAlignDistance);
 
     }
 
     public void setDo_align(int stage) {
         do_align = !do_align;
         if (stage == 1) {
-            skip_horizontal = true;
+            //q
+            // skip_horizontal = true;
         } else {
-            skip_horizontal = true;
+            skip_horizontal = false;
         }
        //startTimestamp = clock.seconds();
     }
 
-    private void verticalupdate() {
+    private void foundationAlignUpdate() {
 
         double d1 = TOF1.getDistance(DistanceUnit.CM) * 0.6657317711 + 2.33512549;
         double d2 = TOF2.getDistance(DistanceUnit.CM) * 0.6343905382 + 2.814252421;
@@ -66,32 +75,44 @@ public class  StackingAlign implements Subsystem {
         double angle = Math.atan2(d1-d2, TOF_SENSOR_DISTANCE);
         verticalCorrection = foundationDistanceController.update(distance);
         angelCorrection  = foundationAngleController.update(angle);
+
+        if (Math.abs(foundationAngleController.getLastError()) < 3) {
+            foundationAngleController.reset();
+            angelCorrection = 0;
+        }
+        if (Math.abs(foundationDistanceController.getLastError()) < 0.5) {
+            foundationDistanceController.reset();
+            verticalCorrection = 0;
+        }
         // robot.drive.setDrivePower(new Pose2d(distanceCorrection,0,angleCorrection));
     }
 
-    private void horizontalupdate()
+    private void stackAlignupdate()
     {
 
-        if (skip_horizontal) {
-            horizintalCorrection = 0;
 
-        }
         d3 = TOF3.getDistance(DistanceUnit.CM);
         d4 = TOF4.getDistance(DistanceUnit.CM);
+        double distance = (d3 + d4) / 2;
 
-        if (d3 > 30 && d4 > 30 ) {
-            horizintalCorrection = 0;
-        }
 
-        if (Math.abs(d3 - d4) < TOF_ERR_MAX ) {
-            horizintalCorrection = 0;
+        //normalrized
+
+        if ((d3 > 30 && d4 > 30) ||  Math.abs(d3 - d4) < TOF_ERR_MAX || skip_horizontal ) {
+            horizontalCorrection = 0;
             do_align = false;
-        }
-        if (d3 > d4) {
-            horizintalCorrection = -0.25;
+            stackAlignController.reset();
         } else {
-            horizintalCorrection = 0.25;
+            horizontalCorrection = stackAlignController.update(distance);
         }
+
+        /*
+        if (d3 > d4) {
+            horizontalCorrection = -0.25;
+        } else {
+            horizontalCorrection = 0.25;
+        }*/
+
     }
 
 
@@ -99,11 +120,11 @@ public class  StackingAlign implements Subsystem {
     public void update() {
         if (do_align) {
             if (count > 45) {
-                do_align = false;
+               // do_align = false;
                 count = 0;
             }
-            verticalupdate();
-            horizontalupdate();
+            foundationAlignUpdate();
+            stackAlignupdate();
             count ++;
         }
 
