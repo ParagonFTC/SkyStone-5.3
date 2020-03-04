@@ -81,13 +81,13 @@ public class RedAuto extends SkystoneAutoOpMode {
 
         robot.drive.followTrajectorySync(
                 robot.drive.trajectoryBuilder()
-                        .strafeTo(new Vector2d(-22,36))
-                        .strafeTo(new Vector2d(-36,88))
+                        .strafeTo(new Vector2d(-22,40))
+                        .strafeTo(new Vector2d(-38,88))
                         .build()
         );
 
         robot.sideGrippers.cycleGripper();
-        sleep(500);
+        sleep(750);
         robot.sideGrippers.cycleGripper();
         robot.drive.followTrajectorySync(
                 robot.drive.trajectoryBuilder()
@@ -95,5 +95,45 @@ public class RedAuto extends SkystoneAutoOpMode {
                         .strafeTo(new Vector2d(-24,16))
                         .build()
         );
+
+        robot.sideGrippers.cycleGripper();
+
+        switch (position) {
+            case CENTER:
+                robot.drive.followTrajectorySync(
+                        robot.drive.trajectoryBuilder()
+                                .reverse()
+                                .strafeTo(new Vector2d(-38,-2))
+                                .build()
+                );
+        }
+        robot.sideGrippers.cycleGripper();
+        sleep(500);
+        robot.sideGrippers.cycleGripper();
+
+        robot.drive.followTrajectorySync(
+                robot.drive.trajectoryBuilder()
+                        .strafeTo(new Vector2d(-26,40))
+                        .strafeTo(new Vector2d(-40,88))
+                        .build()
+        );
+
+        robot.sideGrippers.cycleGripper();
+        sleep(750);
+        robot.sideGrippers.cycleGripper();
+
+        robot.drive.followTrajectorySync(
+                robot.drive.trajectoryBuilder()
+                        .strafeRight(8)
+                        .build()
+        );
+        robot.drive.turnSync(Math.toRadians(90));
+        robot.drive.followTrajectorySync(
+                robot.drive.trajectoryBuilder()
+                        .forward(11)
+                        .build()
+        );
+        robot.drive.engageHooks();
+        sleep(250);
     }
 }

@@ -34,6 +34,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.teamcode.Util.AxesSigns;
 import org.firstinspires.ftc.teamcode.Util.BNO055IMUUtil;
 import org.firstinspires.ftc.teamcode.Util.DashboardUtil;
+import org.firstinspires.ftc.teamcode.Util.IMUHeadingLocalizer;
 import org.firstinspires.ftc.teamcode.Util.LynxModuleUtil;
 import org.firstinspires.ftc.teamcode.Util.LynxOptimizedI2cFactory;
 import org.openftc.revextensions2.ExpansionHubEx;
@@ -55,7 +56,7 @@ import java.util.List;
 @Config
 public class MecanumDriveWrapper extends MecanumDrive implements Subsystem {
     public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0,0,0);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(0.01,0,0);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(0.3,0,0.1);
 
     public static final PIDCoefficients MOTOR_VELO_PID = new PIDCoefficients(30,0.05,0.9);
 
@@ -113,10 +114,10 @@ public class MecanumDriveWrapper extends MecanumDrive implements Subsystem {
             Math.toRadians(180.0), Math.toRadians(180.0), 0.0
     );
 
-    public static double leftHookEngagedPosition = 1;
-    public static double rightHookEngagedPosition = 0;
-    public static double leftHookDisengagedPosition = 0;
-    public static double rightHookDisengagedPosition = 1;
+    public static double leftHookEngagedPosition = 0.25;
+    public static double rightHookEngagedPosition = 0.75;
+    public static double leftHookDisengagedPosition = 0.99;
+    public static double rightHookDisengagedPosition = 0;
 
     private ExpansionHubEx hub1;
     private ExpansionHubMotor leftFront, leftBack, rightBack, rightFront;
@@ -168,6 +169,8 @@ public class MecanumDriveWrapper extends MecanumDrive implements Subsystem {
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //TODO: tune velocity PID Coefficients
+
+        setLocalizer(new IMUHeadingLocalizer(getLocalizer(), imu));
     }
 
     public PIDCoefficients getPIDCoefficients(DcMotor.RunMode runMode) {

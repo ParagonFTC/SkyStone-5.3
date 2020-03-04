@@ -143,12 +143,12 @@ public class SideGrippers implements Subsystem {
                         leftGripper.setPosition(leftGripperGripPosition);
                         break;
                     case RELEASE_2:
-                        leftWrist.setPosition(rightWristDeployPosition);
-                        if (clock.seconds() > wristStartTimestamp + wristDelay) leftGripper.setPosition(rightGripperReleasePosition);
+                        leftWrist.setPosition(leftWristDeployPosition);
+                        if (clock.seconds() > wristStartTimestamp + wristDelay) leftGripper.setPosition(leftGripperReleasePosition);
                         break;
                     case HOLD_2:
-                        leftWrist.setPosition(rightWristHoldPosition);
-                        if (clock.seconds() > wristStartTimestamp + wristDelay) leftGripper.setPosition(rightGripperGripPosition);
+                        leftWrist.setPosition(leftWristHoldPosition);
+                        if (clock.seconds() > wristStartTimestamp + wristDelay) leftGripper.setPosition(leftGripperGripPosition);
                         break;
                 }
                 break;
