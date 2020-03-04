@@ -289,7 +289,9 @@ public class Outtake2 implements Subsystem {
     }
 
     public void backToIdle() {
-        liftPosition --;
+        if (liftPosition >= 1) {
+            liftPosition--;
+        }
         switch (wristPosition) {
 
             case DEPLOY_DONE:
@@ -305,8 +307,10 @@ public class Outtake2 implements Subsystem {
         }
     }
 
-    public void deploy() {
-        wristPosition = WristPosition.DEPLOY;
+    public void jumpStages() {
+        if (liftPosition < 8) {
+            liftPosition--;
+        }
     }
 
     public double getLiftPosition() {

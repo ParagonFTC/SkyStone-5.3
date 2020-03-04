@@ -120,7 +120,7 @@ public class Teleop extends OpMode {
         } else if (stickyGamepad2.x) {
             robot.outtake.cycleWrist();
         }
-        if (stickyGamepad2.y) robot.outtake.deploy();
+        if (stickyGamepad2.y) robot.outtake.jumpStages();
         if (gamepad2.dpad_left) robot.outtake.cap();
         //telemetry.addData("switch mode engaged", t);
       //  telemetry.addData("wrist position", robot.outtake.getWristPosition());
