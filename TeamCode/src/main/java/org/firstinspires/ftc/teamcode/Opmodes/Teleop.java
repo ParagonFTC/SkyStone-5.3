@@ -1,10 +1,14 @@
 package org.firstinspires.ftc.teamcode.Opmodes;
 
+import com.acmerobotics.roadrunner.control.PIDCoefficients;
+import com.acmerobotics.roadrunner.control.PIDFController;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.ftccommon.SoundPlayer;
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Subsystems.Outtake2;
 import org.firstinspires.ftc.teamcode.Subsystems.Robot;
 import org.firstinspires.ftc.teamcode.Util.StickyGamepad;
@@ -20,6 +24,18 @@ public class Teleop extends OpMode {
 
     ExpansionHubMotor park;
 
+    boolean foundationAlign;
+
+    public static PIDCoefficients foundationDistanceCoefficients = new PIDCoefficients(-0.05,0,0);
+    public static PIDCoefficients foundationAngleCoefficients = new PIDCoefficients(-1,0,0);
+    public static double foundationAlignDistance = 8;
+    public static final double TOF_SENSOR_DISTANCE = 10.3950008;
+    private PIDFController foundationDistanceController;
+    private PIDFController foundationAngleController;
+
+    Rev2mDistanceSensor TOF1;
+    Rev2mDistanceSensor TOF2;
+
     @Override
     public void init() {
         stickyGamepad1 = new StickyGamepad(gamepad1);
@@ -34,6 +50,11 @@ public class Teleop extends OpMode {
         SoundPlayer.getInstance().startPlaying(hardwareMap.appContext, soundID);
 
         park = hardwareMap.get(ExpansionHubMotor.class, "park");
+
+        TOF1 = hardwareMap.get(Rev2mDistanceSensor.class, "TOF1");
+        TOF2 = hardwareMap.get(Rev2mDistanceSensor.class, "TOF2");
+        foundationDistanceController = new PIDFController(foundationDistanceCoefficients);
+        foundationAngleController = new PIDFController(foundationAngleCoefficients);
     }
 
     @Override
@@ -50,7 +71,20 @@ public class Teleop extends OpMode {
             if (Math.abs(t) == 1) t *= 0.3;
             else  t *= 10.0/3;
         }
+
+        double d1 = TOF1.getDistance(DistanceUnit.CM) * 0.6657317711 + 2.33512549;
+        double d2 = TOF2.getDistance(DistanceUnit.CM) * 0.6343905382 + 2.814252421;
+
+        double distance = (d1 + d2) / 2;
+        double angle = Math.atan2(d1-d2, TOF_SENSOR_DISTANCE);
+        if (stickyGamepad1.x) foundationAlign = !foundationAlign;
+
         if (gamepad1.right_stick_x != 0) robot.drive.setDrivePower(new Pose2d(0,0, -Math.abs(t) * gamepad1.right_stick_x));
+        else if (foundationAlign) {
+            double distanceCorrection = foundationDistanceController.update(distance);
+            double angleCorrection = foundationAngleController.update(angle);
+            robot.drive.setDrivePower(new Pose2d(distanceCorrection,t*gamepad1.left_stick_x,angleCorrection));
+        }
         else robot.drive.setDrivePower(new Pose2d(t*gamepad1.left_stick_y,t*gamepad1.left_stick_x,0));
         robot.intake.setSpeed(0.8*gamepad1.left_trigger);
         if (gamepad1.left_bumper) {
