@@ -47,6 +47,7 @@ public class Outtake2 implements Subsystem {
     public static double grabberCapPosition = 0.17;
 
     public static double adjustStep = 0.9; // 1 inch
+    boolean keylock = false;
 
     RevTouchSensor limit;
 
@@ -235,6 +236,9 @@ public class Outtake2 implements Subsystem {
     }
 
     public void cycleWrist() {
+        if (keylock) {
+            keylock = false;
+        }
         switch (wristPosition) {
             case IDLE:
                 lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -289,6 +293,8 @@ public class Outtake2 implements Subsystem {
     }
 
     public void backToIdle() {
+        if (keylock)
+            return;
         if (liftPosition >= 1) {
             liftPosition--;
         }
