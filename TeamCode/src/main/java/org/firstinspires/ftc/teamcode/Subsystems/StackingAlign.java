@@ -120,8 +120,8 @@ public class  StackingAlign implements Subsystem {
             do_align = false;
             stackAlignController.reset();
             /* reset other PID too,  since adjust has done */
-            foundationAngleController.reset();
-            foundationDistanceController.reset();
+            //foundationAngleController.reset();
+            //foundationDistanceController.reset();
         } else {
             horizontalCorrection = Math.abs(stackAlignController.update(distance));
         }
