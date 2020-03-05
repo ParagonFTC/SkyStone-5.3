@@ -21,6 +21,7 @@ public class Robot implements OpModeManagerNotifier.Notifications, GlobalWarning
     public MecanumDriveWrapper drive;
     public Intake intake;
     public Outtake2 outtake;
+    public StackingAlign stackalign;
     public SideGrippers sideGrippers;
     private List<Subsystem> subsystems;
     private List<Subsystem> subsystemsWithProblems;
@@ -84,6 +85,11 @@ public class Robot implements OpModeManagerNotifier.Notifications, GlobalWarning
         } catch (IllegalArgumentException e) {
             Log.w(TAG, "skipping side grippers");
         }
+        try {
+            stackalign = new StackingAlign(opMode.hardwareMap);
+        } catch (IllegalArgumentException e) {
+            Log.w(TAG, "skipping stacking align ");
+        }
 
 
         Activity activity = (Activity) opMode.hardwareMap.appContext;
@@ -99,6 +105,7 @@ public class Robot implements OpModeManagerNotifier.Notifications, GlobalWarning
         subsystems.add(intake);
         subsystems.add(outtake);
         subsystems.add(sideGrippers);
+        subsystems.add(stackalign);
     }
 
     public void start() {
