@@ -110,13 +110,15 @@ public class Teleop extends OpMode {
         if (gamepad2.a) robot.outtake.backToIdle();
         if (gamepad2.b) robot.outtake.disarmGrabber();
         if (gamepad2.right_bumper) {
+            /* it's dangerous,  not use it for now */
+            /*
             if (gamepad2.y) {
                 robot.outtake.setWristPosition(Outtake2.wristGrabPosition);
             } else if (gamepad2.x) {
                 robot.outtake.setWristPosition(Outtake2.wristDeployPosition);
             } else {
                 robot.outtake.setWristPosition(gamepad2.right_trigger);
-            }
+            } */
         } else if (stickyGamepad2.x) {
             robot.outtake.cycleWrist();
         }
@@ -134,8 +136,8 @@ public class Teleop extends OpMode {
       //  telemetry.addData("controlleroutput", robot.outtake.controlleroutput);
         telemetry.addData("d3", robot.stackalign.d3);
         telemetry.addData("d4", robot.stackalign.d4);
-        telemetry.addData("d1", robot.stackalign.d1);
-        telemetry.addData("d2", robot.stackalign.d2);
+    //    telemetry.addData("d1", robot.stackalign.d1);
+     //   telemetry.addData("d2", robot.stackalign.d2);
         telemetry.addData("horizontalCorrection", robot.stackalign.horizontalCorrection);
         telemetry.addData("verticalCorrection", robot.stackalign.verticalCorrection);
         telemetry.addData("angelCorrection", robot.stackalign.angelCorrection);

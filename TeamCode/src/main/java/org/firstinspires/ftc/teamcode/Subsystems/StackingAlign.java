@@ -23,6 +23,7 @@ public class  StackingAlign implements Subsystem {
     private PIDFController foundationDistanceController;
     private PIDFController foundationAngleController;
     private PIDFController stackAlignController;
+    private int stage = 0;
     public  boolean do_align = false;
     public double verticalCorrection = 0.0;
     public double horizontalCorrection = 0.0;
@@ -56,6 +57,8 @@ public class  StackingAlign implements Subsystem {
     }
 
     public void setDo_align(int stage) {
+        this.stage = stage;
+
         do_align = !do_align;
         if (stage <= 1) {
             // skip_horizontal = true;
@@ -73,6 +76,10 @@ public class  StackingAlign implements Subsystem {
         double angle = Math.atan2(d1-d2, TOF_SENSOR_DISTANCE);
         verticalCorrection = foundationDistanceController.update(distance);
         angelCorrection  = foundationAngleController.update(angle);
+
+        if (distance < 8  && stage > 1) {
+            skip_horizontal = false;
+        }
 
         /* horizontal adjust might introduce error in foundation,  so keeping working
          * till alignment has  done.  keep following line commented out for history
@@ -100,8 +107,11 @@ public class  StackingAlign implements Subsystem {
 
 
         // check whether job is done
+        if (d3 > 30 && d4 > 30) {
+            skip_horizontal = true;
+        }
 
-        if ((d3 > 30 && d4 > 30) ||  Math.abs(d3 - d4) < TOF_ERR_MAX || skip_horizontal ) {
+        if ( Math.abs(d3 - d4) < TOF_ERR_MAX || skip_horizontal ) {
             horizontalCorrection = 0;
             do_align = false;
             stackAlignController.reset();
