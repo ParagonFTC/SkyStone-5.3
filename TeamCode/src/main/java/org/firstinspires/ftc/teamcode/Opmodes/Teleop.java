@@ -54,8 +54,10 @@ public class Teleop extends OpMode {
             if (Math.abs(t) == 1) t *= 0.3;
             else  t *= 10.0/3;
         }
+
         if (gamepad1.right_stick_x != 0) robot.drive.setDrivePower(new Pose2d(0,0, -Math.abs(t) * gamepad1.right_stick_x));
         else robot.drive.setDrivePower(new Pose2d(t*gamepad1.left_stick_y,t*gamepad1.left_stick_x,0));
+
         robot.intake.setSpeed(0.8*gamepad1.left_trigger);
         if (gamepad1.left_bumper) {
             robot.intake.setSpeed(-1);
@@ -71,12 +73,11 @@ public class Teleop extends OpMode {
         if (robot.stackalign.do_align) {
            //robot.drive.setDrivePower(new Pose2d(robot.stackalign.verticalCorrection, robot.stackalign.horizontalCorrection,
             //      robot.stackalign.angelCorrection));
+
         }
         robot.outtake.setLiftPower(gamepad2.left_stick_y);
         if (stickyGamepad2.dpad_up) robot.outtake.liftPositionUp();
         else if (stickyGamepad2.dpad_down) robot.outtake.liftPositionDown();
-
-        //if (gamepad2.a) robot.outtake.armGrabber();
         if (gamepad2.a) robot.outtake.backToIdle();
         if (gamepad2.b) robot.outtake.disarmGrabber();
         if (gamepad2.right_bumper) {
