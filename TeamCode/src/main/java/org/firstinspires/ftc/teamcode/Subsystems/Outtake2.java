@@ -293,10 +293,10 @@ public class Outtake2 implements Subsystem {
     }
 
     public void backToIdle() {
-        if (keylock)
-            return;
-        if (liftPosition >= 1) {
-            liftPosition--;
+        :q
+        if (liftPosition >= 1 && keylock != true) {
+            liftPosition --;
+            keylock = true;
         }
         switch (wristPosition) {
 

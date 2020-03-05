@@ -109,10 +109,9 @@ public class Teleop extends OpMode {
         if (gamepad2.dpad_left) robot.outtake.cap();
       //  telemetry.addData("wrist position", robot.outtake.getWristPosition());
         park.setPower(gamepad2.left_trigger);
-    //    telemetry.addData("lift position", robot.outtake.getLiftPosition());
 
     //   telemetry.addData("lift target position", robot.outtake.getLiftTargetPosition());
-      // telemetry.addData("lift stages", robot.outtake.liftPosition);
+
       //  telemetry.addData("lift mode", robot.outtake.getMode());
        // telemetry.addData("power", robot.outtake.power);
       //  telemetry.addData("controlleroutput", robot.outtake.controlleroutput);
