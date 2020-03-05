@@ -55,10 +55,10 @@ import java.util.List;
 
 @Config
 public class MecanumDriveWrapper extends MecanumDrive implements Subsystem {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0,0,0);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(0.3,0,0.1);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0.3,0,0.1);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(0.4,0,0.1);
 
-    public static final PIDCoefficients MOTOR_VELO_PID = new PIDCoefficients(30,0.05,0.9);
+    public static final PIDCoefficients MOTOR_VELO_PID = new PIDCoefficients(30,0.05,2);
 
     public enum Mode {
         IDLE,
@@ -161,6 +161,7 @@ public class MecanumDriveWrapper extends MecanumDrive implements Subsystem {
         motors = Arrays.asList(leftFront, leftBack, rightBack, rightFront);
 
         for (ExpansionHubMotor motor : motors) {
+            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
@@ -246,7 +247,7 @@ public class MecanumDriveWrapper extends MecanumDrive implements Subsystem {
         double heading = getPoseEstimate().getHeading();
         turnProfile = MotionProfileGenerator.generateSimpleMotionProfile(
                 new MotionState(heading, 0, 0, 0),
-                new MotionState(heading + angle, 0, 0, 0),
+                new MotionState(angle, 0, 0, 0),
                 constraints.maxAngVel,
                 constraints.maxAngAccel,
                 constraints.maxAngJerk

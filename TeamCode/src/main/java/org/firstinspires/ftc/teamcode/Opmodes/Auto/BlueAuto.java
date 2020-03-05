@@ -4,15 +4,17 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.Subsystems.SideGrippers;
+
 import kotlin.Unit;
 
 @Autonomous
 public class BlueAuto extends SkystoneAutoOpMode{
     public static final double STONE_WIDTH = 49;
     // left and right are switched bc i'm lazy
-    public static double RIGHT_STONE_X = 63;
-    public static double CENTER_STONE_X = 125;
-    public static double LEFT_STONE_X = 184;
+    public static double RIGHT_STONE_X = 100;
+    public static double CENTER_STONE_X = 160;
+    public static double LEFT_STONE_X = 220;
 
     @Override
     protected SkystoneAutoOpMode.SkystonePosition getSkystonePosition() {
@@ -26,88 +28,144 @@ public class BlueAuto extends SkystoneAutoOpMode{
     @Override
     protected void setup() {
         robot.drive.disengageHooks();
-        robot.outtake.cycleWrist();
         robot.drive.setPoseEstimate(new Pose2d());
+        robot.sideGrippers.setGripperSide(SideGrippers.GripperSide.RIGHT);
     }
 
     @Override
     protected void run(SkystoneAutoOpMode.SkystonePosition position) {
-        //for some reason position estimation is bad so I manually set the position of the robot
+        robot.sideGrippers.cycleGripper();
+/*
+        robot.drive.followTrajectorySync(
+                robot.drive.trajectoryBuilder()
+                        .reverse()
+                        .splineTo(new Pose2d(-24,-8,Math.toRadians(90)))
+                        .build()
+        );
+*/
         switch (position) {
             case LEFT:
                 robot.drive.followTrajectorySync(
                         robot.drive.trajectoryBuilder()
                                 .reverse()
-                                .splineTo(new Pose2d(-36,-4,Math.toRadians(30)))
-                                .addMarker(() -> {robot.intake.setSpeed(0.8); return Unit.INSTANCE;})
-                                .strafeTo(new Vector2d(-48,-4))
-                                .strafeTo(new Vector2d(-48,-12))
+                                .splineTo(new Pose2d(-23,8,Math.toRadians(-90)))
+                                .strafeTo(new Vector2d(-32,33))
                                 .build()
                 );
-                robot.drive.setPoseEstimate(new Pose2d(-46,-13,Math.toRadians(55)));
                 break;
             case RIGHT:
                 robot.drive.followTrajectorySync(
                         robot.drive.trajectoryBuilder()
                                 .reverse()
-                                .splineTo(new Pose2d(-32,-8,Math.toRadians(30)))
-                                .addMarker(() -> {robot.intake.setSpeed(0.8); return Unit.INSTANCE;})
-                                .strafeTo(new Vector2d(-48,-8))
-                                .strafeTo(new Vector2d(-48,-16))
+                                .splineTo(new Pose2d(-23,8,Math.toRadians(-90)))
+                                .strafeTo(new Vector2d(-31,14))
                                 .build()
                 );
-                robot.drive.setPoseEstimate(new Pose2d(-48,-16,Math.toRadians(55)));
                 break;
             case CENTER:
                 robot.drive.followTrajectorySync(
                         robot.drive.trajectoryBuilder()
                                 .reverse()
-                                .splineTo(new Pose2d(-36,2,Math.toRadians(30)))
-                                .addMarker(() -> {robot.intake.setSpeed(0.8); return Unit.INSTANCE;})
-                                .strafeTo(new Vector2d(-48,2))
-                                .strafeTo(new Vector2d(-48,-8))
+                                .splineTo(new Pose2d(-23,8,Math.toRadians(-90)))
+                                .strafeTo(new Vector2d(-32,22))
                                 .build()
                 );
-                robot.drive.setPoseEstimate(new Pose2d(-48,-4,Math.toRadians(55)));
                 break;
         }
-        sleep(500);
 
-        robot.intake.setSpeed(0);
-        robot.outtake.cycleWrist();
+        robot.sideGrippers.cycleGripper();
+        sleep(500);
+        robot.sideGrippers.cycleGripper();
+
         robot.drive.followTrajectorySync(
                 robot.drive.trajectoryBuilder()
-                        .addMarker(1,() -> {robot.intake.setSpeed(-1); return Unit.INSTANCE;})
-                        .addMarker(2, () -> {robot.intake.setSpeed(0); return Unit.INSTANCE;})
-                        .splineTo(new Pose2d(-36,64,Math.toRadians(90)))
-                        .splineTo(new Pose2d(-60,95,Math.toRadians(180)))
-                        .forward(6)
+                        .strafeTo(new Vector2d(-21,-40))
+                        .strafeTo(new Vector2d(-36,-84))
+                        .build()
+        );
+
+        robot.sideGrippers.cycleGripper();
+        sleep(750);
+        robot.sideGrippers.cycleGripper();
+        robot.drive.followTrajectorySync(
+                robot.drive.trajectoryBuilder()
+                        .strafeTo(new Vector2d(-25,-36))
+                        .reverse()
+                        .splineTo(new Pose2d(-25,-16,Math.toRadians(-90)))
+                        .build()
+        );
+
+        robot.sideGrippers.cycleGripper();
+
+        switch (position) {
+            case CENTER:
+                robot.drive.followTrajectorySync(
+                        robot.drive.trajectoryBuilder()
+                                .reverse()
+                                .strafeTo(new Vector2d(-35,1))
+                                .build()
+                );
+                break;
+            case LEFT:
+                robot.drive.followTrajectorySync(
+                        robot.drive.trajectoryBuilder()
+                                .reverse()
+                                .strafeTo(new Vector2d(-34,10))
+                                .build()
+                );
+                break;
+            case RIGHT:
+                robot.drive.followTrajectorySync(
+                        robot.drive.trajectoryBuilder()
+                                .reverse()
+                                .strafeTo(new Vector2d(-35,-7))
+                                .build()
+                );
+                break;
+        }
+        robot.sideGrippers.cycleGripper();
+        sleep(500);
+        robot.sideGrippers.cycleGripper();
+
+        robot.drive.followTrajectorySync(
+                robot.drive.trajectoryBuilder()
+                        .strafeTo(new Vector2d(-24,-40))
+                        .strafeTo(new Vector2d(-39,-84))
+                        .build()
+        );
+
+        robot.sideGrippers.cycleGripper();
+        sleep(750);
+        robot.sideGrippers.cycleGripper();
+
+        robot.drive.followTrajectorySync(
+                robot.drive.trajectoryBuilder()
+                        .strafeLeft(8)
+                        .build()
+        );
+        robot.drive.turnSync(Math.toRadians(180));
+        robot.drive.followTrajectorySync(
+                robot.drive.trajectoryBuilder()
+                        .strafeLeft(8)
+                        .forward(12)
                         .build()
         );
         robot.drive.engageHooks();
-        robot.drive.setPoseEstimate(new Pose2d(-66,95,Math.toRadians(180)));
         sleep(500);
         robot.drive.followTrajectorySync(
                 robot.drive.trajectoryBuilder()
                         .reverse()
-                        .forward(12)
-                        .splineTo(new Pose2d(-44,65,Math.toRadians(80)))
+                        .splineTo(new Pose2d(-12,-56,Math.toRadians(-90)))
                         .build()
         );
+        //this is what happens when you don't normalize the heading -_-
+        robot.drive.turnSync(Math.toRadians(270));
         robot.drive.disengageHooks();
-        robot.outtake.cycleWrist();
-        sleep(100);
-        robot.outtake.cycleWrist();
-        sleep(1000);
-        robot.outtake.cycleWrist();
-        robot.drive.setPoseEstimate(new Pose2d(-40,65,Math.toRadians(90)));
         robot.drive.followTrajectorySync(
                 robot.drive.trajectoryBuilder()
-                        .forward(36)
                         .reverse()
-                        .forward(44)
+                        .splineTo(new Pose2d(-30,-29,Math.toRadians(-90)))
                         .build()
         );
-        robot.drive.setPoseEstimate(new Pose2d(-42,55,Math.toRadians(90)));
     }
 }

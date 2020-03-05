@@ -38,8 +38,11 @@ public class FoundationAlignTest extends LinearOpMode {
         foundationAngleController.setTargetPosition(0);
 
         while (!isStopRequested()) {
-            double d1 = TOF1.getDistance(DistanceUnit.CM) * 0.6657317711 + 2.33512549;
+            double d1 = TOF1.getDistance(DistanceUnit.CM) * 0.8179308772 + 0.444331014;
             double d2 = TOF2.getDistance(DistanceUnit.CM) * 0.6343905382 + 2.814252421;
+
+            //double d1 = TOF1.getDistance(DistanceUnit.CM);
+            //double d2 = TOF2.getDistance(DistanceUnit.CM);
 
             double distance = (d1 + d2) / 2;
             double angle = Math.atan2(d1-d2, TOF_SENSOR_DISTANCE);

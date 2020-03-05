@@ -1,15 +1,11 @@
 package org.firstinspires.ftc.teamcode.Opmodes.Auto;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.drive.MecanumDrive;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.path.heading.TangentInterpolator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.Subsystems.SideGrippers;
-
-import kotlin.Unit;
 
 @Config
 @Autonomous
@@ -38,22 +34,22 @@ public class RedAuto extends SkystoneAutoOpMode {
 
     @Override
     protected void run(SkystonePosition position) {
-        //for some reason position estimation is bad so I manually set the position of the robot
         robot.sideGrippers.cycleGripper();
-
+/*
         robot.drive.followTrajectorySync(
                 robot.drive.trajectoryBuilder()
                         .reverse()
                         .splineTo(new Pose2d(-24,-8,Math.toRadians(90)))
                         .build()
         );
-
+*/
         switch (position) {
             case LEFT:
                 robot.drive.followTrajectorySync(
                         robot.drive.trajectoryBuilder()
                                 .reverse()
-                                .strafeTo(new Vector2d(-32,-28))
+                                .splineTo(new Pose2d(-24,-8,Math.toRadians(90)))
+                                .strafeTo(new Vector2d(-32,-32))
                                 .build()
                 );
                 break;
@@ -61,7 +57,8 @@ public class RedAuto extends SkystoneAutoOpMode {
                 robot.drive.followTrajectorySync(
                         robot.drive.trajectoryBuilder()
                                 .reverse()
-                                .strafeTo(new Vector2d(-32,-12))
+                                .splineTo(new Pose2d(-24,-8,Math.toRadians(90)))
+                                .strafeTo(new Vector2d(-31,-14))
                                 .build()
                 );
                 break;
@@ -69,6 +66,7 @@ public class RedAuto extends SkystoneAutoOpMode {
                 robot.drive.followTrajectorySync(
                         robot.drive.trajectoryBuilder()
                                 .reverse()
+                                .splineTo(new Pose2d(-24,-8,Math.toRadians(90)))
                                 .strafeTo(new Vector2d(-32,-22))
                                 .build()
                 );
@@ -82,7 +80,7 @@ public class RedAuto extends SkystoneAutoOpMode {
         robot.drive.followTrajectorySync(
                 robot.drive.trajectoryBuilder()
                         .strafeTo(new Vector2d(-22,40))
-                        .strafeTo(new Vector2d(-38,88))
+                        .strafeTo(new Vector2d(-37,84))
                         .build()
         );
 
@@ -91,8 +89,9 @@ public class RedAuto extends SkystoneAutoOpMode {
         robot.sideGrippers.cycleGripper();
         robot.drive.followTrajectorySync(
                 robot.drive.trajectoryBuilder()
-                        .strafeTo(new Vector2d(-24,36))
-                        .strafeTo(new Vector2d(-24,16))
+                        .strafeTo(new Vector2d(-26,36))
+                        .reverse()
+                        .splineTo(new Pose2d(-26,16,Math.toRadians(90)))
                         .build()
         );
 
@@ -103,9 +102,26 @@ public class RedAuto extends SkystoneAutoOpMode {
                 robot.drive.followTrajectorySync(
                         robot.drive.trajectoryBuilder()
                                 .reverse()
-                                .strafeTo(new Vector2d(-38,-2))
+                                .strafeTo(new Vector2d(-38,-1))
                                 .build()
                 );
+                break;
+            case LEFT:
+                robot.drive.followTrajectorySync(
+                        robot.drive.trajectoryBuilder()
+                                .reverse()
+                                .strafeTo(new Vector2d(-38,-9))
+                                .build()
+                );
+                break;
+            case RIGHT:
+                robot.drive.followTrajectorySync(
+                        robot.drive.trajectoryBuilder()
+                                .reverse()
+                                .strafeTo(new Vector2d(-37,7))
+                                .build()
+                );
+                break;
         }
         robot.sideGrippers.cycleGripper();
         sleep(500);
@@ -113,8 +129,8 @@ public class RedAuto extends SkystoneAutoOpMode {
 
         robot.drive.followTrajectorySync(
                 robot.drive.trajectoryBuilder()
-                        .strafeTo(new Vector2d(-26,40))
-                        .strafeTo(new Vector2d(-40,88))
+                        .strafeTo(new Vector2d(-24,40))
+                        .strafeTo(new Vector2d(-40,84))
                         .build()
         );
 
@@ -127,13 +143,28 @@ public class RedAuto extends SkystoneAutoOpMode {
                         .strafeRight(8)
                         .build()
         );
-        robot.drive.turnSync(Math.toRadians(90));
+        robot.drive.turnSync(Math.toRadians(180));
         robot.drive.followTrajectorySync(
                 robot.drive.trajectoryBuilder()
-                        .forward(11)
+                        .strafeRight(8)
+                        .forward(12)
                         .build()
         );
         robot.drive.engageHooks();
-        sleep(250);
+        sleep(500);
+        robot.drive.followTrajectorySync(
+                robot.drive.trajectoryBuilder()
+                        .reverse()
+                        .splineTo(new Pose2d(-12,56,Math.toRadians(90)))
+                        .build()
+        );
+        robot.drive.turnSync(Math.toRadians(90));
+        robot.drive.disengageHooks();
+        robot.drive.followTrajectorySync(
+                robot.drive.trajectoryBuilder()
+                        .reverse()
+                        .splineTo(new Pose2d(-30,30,Math.toRadians(90)))
+                        .build()
+        );
     }
 }
