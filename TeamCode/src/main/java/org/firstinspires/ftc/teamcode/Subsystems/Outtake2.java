@@ -309,7 +309,7 @@ public class Outtake2 implements Subsystem {
 
     public void jumpStages() {
         if (liftPosition < 8) {
-            liftPosition--;
+            liftPosition++;
         }
     }
 

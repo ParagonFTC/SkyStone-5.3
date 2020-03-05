@@ -99,8 +99,8 @@ public class Teleop extends OpMode {
         }
 
         if (robot.stackalign.do_align) {
-            robot.drive.setDrivePower(new Pose2d(robot.stackalign.verticalCorrection, robot.stackalign.horizontalCorrection,
-                   robot.stackalign.angelCorrection));
+           robot.drive.setDrivePower(new Pose2d(robot.stackalign.verticalCorrection, robot.stackalign.horizontalCorrection,
+                  robot.stackalign.angelCorrection));
         }
         robot.outtake.setLiftPower(gamepad2.left_stick_y);
         if (stickyGamepad2.dpad_up) robot.outtake.liftPositionUp();
@@ -124,7 +124,6 @@ public class Teleop extends OpMode {
         }
         if (stickyGamepad2.y) robot.outtake.jumpStages();
         if (gamepad2.dpad_left) robot.outtake.cap();
-        //telemetry.addData("switch mode engaged", t);
       //  telemetry.addData("wrist position", robot.outtake.getWristPosition());
         park.setPower(gamepad2.left_trigger);
     //    telemetry.addData("lift position", robot.outtake.getLiftPosition());
@@ -136,8 +135,8 @@ public class Teleop extends OpMode {
       //  telemetry.addData("controlleroutput", robot.outtake.controlleroutput);
         telemetry.addData("d3", robot.stackalign.d3);
         telemetry.addData("d4", robot.stackalign.d4);
-    //    telemetry.addData("d1", robot.stackalign.d1);
-     //   telemetry.addData("d2", robot.stackalign.d2);
+        telemetry.addData("d1", robot.stackalign.d1);
+        telemetry.addData("d2", robot.stackalign.d2);
         telemetry.addData("horizontalCorrection", robot.stackalign.horizontalCorrection);
         telemetry.addData("verticalCorrection", robot.stackalign.verticalCorrection);
         telemetry.addData("angelCorrection", robot.stackalign.angelCorrection);
