@@ -12,14 +12,14 @@ public class  StackingAlign implements Subsystem {
     private Robot robot;
     public static PIDCoefficients foundationDistanceCoefficients = new PIDCoefficients(-0.05,0,0);
     public static PIDCoefficients foundationAngleCoefficients = new PIDCoefficients(-1,0,0);
-    public static PIDCoefficients StackCoefficients = new PIDCoefficients(0.03,0,0);
-    public static double foundationAlignDistance = 6.5;
+    public static PIDCoefficients StackCoefficients = new PIDCoefficients(0.5,0,0);   // 0.1
+    public static double foundationAlignDistance = 7.0;
     public static double stackAlignDistance = 11;
     public static double stackAlignMin = 0.17;  //minimum power to drive robot
     public static final double TOF_SENSOR_DISTANCE = 10.3950008;
     public static final double TOF_ERR_MAX =  8.0;
 
-    public static final double STACK_ALIGN_OUT_BOUND  = 0.22;
+    public static final double STACK_ALIGN_OUT_BOUND  = 0.24; // 0.22 is a good value,  can we try higher value
     public static final double TOF_DISTANCE_OUT_BOUND = 1;
     public static final double TOF_ANGLE_OUT_BOUND = 5.0 ;
     public static final double STACK_ALIGN_IN_BOUND  = 30;
@@ -167,6 +167,11 @@ public class  StackingAlign implements Subsystem {
             horizontalCorrection = - horizontalCorrection;
         }
 
+    }
+
+    public void testalign() {
+        foundationAlignUpdate();
+        stackAlignupdate();
     }
 
 
