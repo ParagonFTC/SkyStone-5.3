@@ -10,9 +10,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 @Config
 public class  StackingAlign implements Subsystem {
     private Robot robot;
-    public static PIDCoefficients foundationDistanceCoefficients = new PIDCoefficients(-0.1,0,0); //0.05
-    public static PIDCoefficients foundationAngleCoefficients = new PIDCoefficients(-2,0,0); //-1.5, 0, -0.1
-    public static PIDCoefficients StackCoefficients = new PIDCoefficients(0.5,0,0);   // 0.1
+    public static PIDCoefficients foundationDistanceCoefficients = new PIDCoefficients(-0.01,0,0); //0.05 //-0.1//0.02
+    public static PIDCoefficients foundationAngleCoefficients = new PIDCoefficients(-1.0,0,0); //-1.5, 0, -0.1, //-2
+    public static PIDCoefficients StackCoefficients = new PIDCoefficients(0.02,0,0);   // 0.1//0.5/0.1
     public static double foundationAlignDistance = 6.8;
     public static double stackAlignDistance = 11;
     public static double stackAlignMin = 0.1;  //minimum power to drive robot //0.17
@@ -20,8 +20,8 @@ public class  StackingAlign implements Subsystem {
     public static final double TOF_ERR_MAX =  4.0;
 
     public static final double STACK_ALIGN_OUT_BOUND  = 0.24; // 0.22 is a good value,  can we try higher value
-    public static final double TOF_DISTANCE_OUT_BOUND = 3;
-    public static final double TOF_ANGLE_OUT_BOUND = 15.0 ;//10
+    public static final double TOF_DISTANCE_OUT_BOUND = 1.5;
+    public static final double TOF_ANGLE_OUT_BOUND = 10.0 ;//10//15
     public static final double STACK_ALIGN_IN_BOUND  = 30;
     public static final double TOF_DISTANCE_IN_BOUND = 40;
     public static final double TOF_ANGLE_IN_BOUND = 30 ;
@@ -166,12 +166,10 @@ public class  StackingAlign implements Subsystem {
 
         if ( Math.abs(distance - stackAlignDistance) < TOF_ERR_MAX ) {
             horizontalCorrection = 0;
-            do_stackalign = false;
+           // do_stackalign = false;
             stackAlignController.reset();
-            /* reset other PID too,  since adjust has done */
+            return;
 
-           //foundationAngleController.reset();
-           //foundationDistanceController.reset();
         } else {
             horizontalCorrection = Math.abs(stackAlignController.update(distance));
         }
