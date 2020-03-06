@@ -117,7 +117,7 @@ public class Outtake2 implements Subsystem {
         liftState = LiftState.LOWERED;
 
         clock = NanoClock.system();
-        liftPosition = 0;
+        liftPosition = 1;
         grabstate =  GrabState.IDLE;
         setWristPosition(wristIdlePosition);
         disarmGrabber();
@@ -142,8 +142,10 @@ public class Outtake2 implements Subsystem {
     }
 
     public void setWristPosition(double position) {
-        double right = (position - 0.17) *.94 + 0.15;
-        wristLeft.setPosition(position);
+        double left = position + 0.02;
+        double right = (position - 0.17) *.94 +0.15;
+
+        wristLeft.setPosition(left);
         wristRight.setPosition(right);
     }
 
@@ -251,7 +253,6 @@ public class Outtake2 implements Subsystem {
                 setWristPosition(wristGrabPosition);
                 break;
             case GRAB_DONE:
-                liftPosition ++;
                 if (liftPosition > 8) {
                     liftPosition = 1;
                 }
@@ -276,6 +277,7 @@ public class Outtake2 implements Subsystem {
                     setWristPosition(wristLiftPosition);
                     //setWristPosition(wristIdlePosition);
                     wristPosition = WristPosition.PRE_DROP;
+                    liftPosition ++;
                 }
                 break;
             case DROP_DONE:
@@ -293,17 +295,18 @@ public class Outtake2 implements Subsystem {
     }
 
     public void backToIdle() {
-        :q
-        if (liftPosition >= 1 && keylock != true) {
+
+        if (liftPosition > 1 && keylock != true) {
             liftPosition --;
             keylock = true;
         }
         switch (wristPosition) {
-
+            case LIFT_DONE:
+                liftControllerAdjustPosition(-LIFT_ITERATION);
+                break;
             case DEPLOY_DONE:
                 liftControllerAdjustPosition(3);
             case GRAB_DONE:
-            case LIFT_DONE:
                 startTimestamp = clock.seconds();
                 setWristPosition(wristLiftPosition);
                 wristPosition = WristPosition.PRE_DROP;
@@ -317,6 +320,14 @@ public class Outtake2 implements Subsystem {
         if (liftPosition < 8) {
             liftPosition++;
         }
+        switch (wristPosition) {
+            case LIFT_DONE:
+                liftControllerAdjustPosition(LIFT_ITERATION);
+                break;
+            default:
+                break;
+        }
+
     }
 
     public double getLiftPosition() {

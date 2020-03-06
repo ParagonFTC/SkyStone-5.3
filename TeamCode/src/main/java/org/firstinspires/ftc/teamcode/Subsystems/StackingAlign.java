@@ -17,7 +17,7 @@ public class  StackingAlign implements Subsystem {
     public static double stackAlignDistance = 11;
     public static double stackAlignMin = 0.17;  //minimum power to drive robot
     public static final double TOF_SENSOR_DISTANCE = 10.3950008;
-    public static final double TOF_ERR_MAX =  8.0;
+    public static final double TOF_ERR_MAX =  4.0;
 
     public static final double STACK_ALIGN_OUT_BOUND  = 0.24; // 0.22 is a good value,  can we try higher value
     public static final double TOF_DISTANCE_OUT_BOUND = 1;
@@ -146,7 +146,7 @@ public class  StackingAlign implements Subsystem {
             return;
         }
 
-        if ( Math.abs(d3 - d4) < TOF_ERR_MAX ) {
+        if ( Math.abs(distance - stackAlignDistance) < TOF_ERR_MAX ) {
             horizontalCorrection = 0;
             do_align = false;
             stackAlignController.reset();
