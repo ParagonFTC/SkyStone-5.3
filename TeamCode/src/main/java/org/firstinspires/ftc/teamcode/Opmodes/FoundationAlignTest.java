@@ -13,8 +13,8 @@ import org.firstinspires.ftc.teamcode.Subsystems.Robot;
 @TeleOp
 public class FoundationAlignTest extends LinearOpMode {
     public static PIDCoefficients foundationDistanceCoefficients = new PIDCoefficients(-0.05,0,0);
-    public static PIDCoefficients foundationAngleCoefficients = new PIDCoefficients(-1,0,0);
-    public static double foundationAlignDistance = 8;
+    public static PIDCoefficients foundationAngleCoefficients = new PIDCoefficients(-1.5,0,-0.1);
+    public static double foundationAlignDistance = 6.5;
     public static final double TOF_SENSOR_DISTANCE = 10.3950008;
     private PIDFController foundationDistanceController;
     private PIDFController foundationAngleController;
@@ -38,7 +38,7 @@ public class FoundationAlignTest extends LinearOpMode {
         foundationAngleController.setTargetPosition(0);
 
         while (!isStopRequested()) {
-            double d1 = TOF1.getDistance(DistanceUnit.CM) * 0.8179308772 + 0.444331014;
+            double d1 = TOF1.getDistance(DistanceUnit.CM) * 0.728121473 + 1.48048505;
             double d2 = TOF2.getDistance(DistanceUnit.CM) * 0.6343905382 + 2.814252421;
 
             //double d1 = TOF1.getDistance(DistanceUnit.CM);

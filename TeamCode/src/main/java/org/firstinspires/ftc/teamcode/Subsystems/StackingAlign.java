@@ -81,8 +81,7 @@ public class  StackingAlign implements Subsystem {
 
     private void foundationAlignUpdate() {
 
-
-        d1 = TOF1.getDistance(DistanceUnit.CM) * 0.8179308772 + 0.444331014;
+        d1 = TOF1.getDistance(DistanceUnit.CM) * 0.728121473 + 1.48048505;
         d2 = TOF2.getDistance(DistanceUnit.CM) * 0.6343905382 + 2.814252421;
 
 
