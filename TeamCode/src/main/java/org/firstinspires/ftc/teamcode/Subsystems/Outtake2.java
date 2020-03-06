@@ -142,9 +142,9 @@ public class Outtake2 implements Subsystem {
     }
 
     public void setWristPosition(double position) {
-        double left = position + 0.02;
-        double right = (position - 0.17) *.94 +0.15;
 
+        double right = (position - 0.17) *.94 + 0.15;
+        double left = position + 0.02;
         wristLeft.setPosition(left);
         wristRight.setPosition(right);
     }
@@ -295,10 +295,13 @@ public class Outtake2 implements Subsystem {
     }
 
     public void backToIdle() {
-
-        if (liftPosition > 1 && keylock != true) {
+        if (liftPosition > 1) {
             liftPosition --;
-            keylock = true;
+        } else {
+            startTimestamp = clock.seconds();
+            setWristPosition(wristLiftPosition);
+            wristPosition = WristPosition.PRE_DROP;
+            return;
         }
         switch (wristPosition) {
             case LIFT_DONE:

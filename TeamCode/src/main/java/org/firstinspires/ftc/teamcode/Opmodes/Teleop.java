@@ -54,9 +54,12 @@ public class Teleop extends OpMode {
             if (Math.abs(t) == 1) t *= 0.3;
             else  t *= 10.0/3;
         }
-
-        if (gamepad1.right_stick_x != 0) robot.drive.setDrivePower(new Pose2d(0,0, -Math.abs(t) * gamepad1.right_stick_x));
-        else robot.drive.setDrivePower(new Pose2d(t*gamepad1.left_stick_y,t*gamepad1.left_stick_x,0));
+        if (robot.stackalign.do_align == false) {
+            if (gamepad1.right_stick_x != 0)
+                robot.drive.setDrivePower(new Pose2d(0, 0, -Math.abs(t) * gamepad1.right_stick_x));
+            else
+                robot.drive.setDrivePower(new Pose2d(t * gamepad1.left_stick_y, t * gamepad1.left_stick_x, 0));
+        }
 
         robot.intake.setSpeed(0.8*gamepad1.left_trigger);
         if (gamepad1.left_bumper) {
@@ -66,7 +69,7 @@ public class Teleop extends OpMode {
         //telemetry.addData("intake power", robot.intake.getSpeed());
         if (gamepad1.a) robot.drive.engageHooks();
         if (gamepad1.b) robot.drive.disengageHooks();
-        if (gamepad1.y) {
+        if (stickyGamepad1.y) {
             robot.stackalign.testalign();
             telemetry.addData("lift stages", robot.outtake.liftPosition);
             telemetry.addData("d3", robot.stackalign.d3);
@@ -78,15 +81,15 @@ public class Teleop extends OpMode {
             telemetry.addData("angelCorrection", robot.stackalign.angelCorrection);
 
         }
-        if (gamepad1.x) {
+        if (stickyGamepad1.x) {
             robot.stackalign.setDo_align(robot.outtake.liftPosition);
         }
 
         if (robot.stackalign.do_align) {
-           robot.drive.setDrivePower(new Pose2d(robot.stackalign.verticalCorrection, robot.stackalign.horizontalCorrection,
-                  robot.stackalign.angelCorrection));
-
+            robot.drive.setDrivePower(new Pose2d(robot.stackalign.verticalCorrection, robot.stackalign.horizontalCorrection,
+                    robot.stackalign.angelCorrection));
         }
+
         robot.outtake.setLiftPower(gamepad2.left_stick_y);
         if (stickyGamepad2.dpad_up) robot.outtake.liftPositionUp();
         else if (stickyGamepad2.dpad_down) robot.outtake.liftPositionDown();

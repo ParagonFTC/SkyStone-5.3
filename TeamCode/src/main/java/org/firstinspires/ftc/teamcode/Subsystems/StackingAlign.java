@@ -10,21 +10,23 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 @Config
 public class  StackingAlign implements Subsystem {
     private Robot robot;
-    public static PIDCoefficients foundationDistanceCoefficients = new PIDCoefficients(-0.05,0,0);
-    public static PIDCoefficients foundationAngleCoefficients = new PIDCoefficients(-1,0,0);
+    public static PIDCoefficients foundationDistanceCoefficients = new PIDCoefficients(-0.1,0,0); //0.05
+    public static PIDCoefficients foundationAngleCoefficients = new PIDCoefficients(-2,0,0); //-1.5, 0, -0.1
     public static PIDCoefficients StackCoefficients = new PIDCoefficients(0.5,0,0);   // 0.1
     public static double foundationAlignDistance = 6.8;
     public static double stackAlignDistance = 11;
-    public static double stackAlignMin = 0.17;  //minimum power to drive robot
+    public static double stackAlignMin = 0.1;  //minimum power to drive robot //0.17
     public static final double TOF_SENSOR_DISTANCE = 10.3950008;
     public static final double TOF_ERR_MAX =  4.0;
 
     public static final double STACK_ALIGN_OUT_BOUND  = 0.24; // 0.22 is a good value,  can we try higher value
-    public static final double TOF_DISTANCE_OUT_BOUND = 1;
-    public static final double TOF_ANGLE_OUT_BOUND = 10.0 ;
+    public static final double TOF_DISTANCE_OUT_BOUND = 3;
+    public static final double TOF_ANGLE_OUT_BOUND = 15.0 ;//10
     public static final double STACK_ALIGN_IN_BOUND  = 30;
     public static final double TOF_DISTANCE_IN_BOUND = 40;
     public static final double TOF_ANGLE_IN_BOUND = 30 ;
+    public static final double TOF_DIST_MIN = 0.12;
+    public static final double TOF_ANGLE_MIN = 0.1;
 
     private PIDFController foundationDistanceController;
     private PIDFController foundationAngleController;
@@ -34,12 +36,14 @@ public class  StackingAlign implements Subsystem {
     private static final double foundationDetectRange = 50;
     private static final double foundationDetectDIFF = 15;
     public  boolean do_align = false;
+    public boolean do_stackalign = true;
+    public boolean do_basealign_dist = true;
+    public boolean do_basealign_angle=  true;
     public double verticalCorrection = 0.0;
     public double horizontalCorrection = 0.0;
     public double angelCorrection = 0.0;
     public double d1, d2, d3, d4 = 0;
 
-    boolean skip_horizontal = false;
 
     Rev2mDistanceSensor TOF1;
     Rev2mDistanceSensor TOF2;
@@ -72,32 +76,40 @@ public class  StackingAlign implements Subsystem {
     public void setDo_align(int stage) {
 
         do_align = !do_align;
+        do_stackalign =true;
+        do_basealign_angle = true;
+        do_basealign_dist = true;
+
         if (stage <= 1) {
-             skip_horizontal = true;
-        } else {
-            skip_horizontal = false;
+             do_stackalign = false;
         }
     }
 
     private void foundationAlignUpdate() {
+        if (do_basealign_angle == false && do_basealign_dist == false) {
+            verticalCorrection = 0 ;
+            angelCorrection = 0;
+            return;
+        }
 
         d1 = TOF1.getDistance(DistanceUnit.CM) * 0.728121473 + 1.48048505;
         d2 = TOF2.getDistance(DistanceUnit.CM) * 0.6343905382 + 2.814252421;
 
-
+        // Limit distance adjust range
         if (Math.abs(d1 - d2) > foundationDetectDIFF || d1 >  foundationDetectRange || d2 > foundationDetectRange) {
             verticalCorrection = 0 ;
             angelCorrection = 0;
-            do_align = false;
+            //do_basealign_dist = false;
             return;
         }
-
+        // Calculate measurements
         double distance = (d1 + d2) / 2;
         double angle = Math.atan2(d1-d2, TOF_SENSOR_DISTANCE);
 
-        if ( angle > 30 ) {
+        // Limit angle range
+        if ( Math.abs(angle) > 30 ) {
 
-            do_align = false;
+            do_basealign_angle = false;
             verticalCorrection = 0;
             angelCorrection = 0;
             return;
@@ -105,33 +117,41 @@ public class  StackingAlign implements Subsystem {
 
         verticalCorrection = foundationDistanceController.update(distance);
         angelCorrection  = foundationAngleController.update(angle);
+/*
+        if (Math.abs(verticalCorrection) < TOF_DIST_MIN) {
+            verticalCorrection =  TOF_DIST_MIN;
+        }
 
 
+       if (distance <  foundationAlignDistance) {
+           verticalCorrection = - verticalCorrection;
+       }
+        if (Math.abs(angelCorrection) < TOF_ANGLE_MIN) {
+            angelCorrection =  TOF_ANGLE_MIN;
+        }
 
-        /*
-        if (distance < 8  && stage > 1) {
-            skip_horizontal = false;
-        }*/
-
-        /* horizontal adjust might introduce error in foundation,  so keeping working
-         * till alignment has  done.  keep following line commented out for history
-         * reason
-         */
-        /*
-        if (Math.abs(foundationAngleController.getLastError()) < 5) {
+        if (angle <  0 ) {
+            angelCorrection = -angelCorrection;
+        }
+*/
+        // Final error exit condition
+        if (Math.abs(foundationAngleController.getLastError()) < 2) {
             //foundationAngleController.reset();
-            angelCorrection = 0;
+           // do_basealign_angle = false;
         }
         if (Math.abs(foundationDistanceController.getLastError()) < 0.5) {
-         //   foundationDistanceController.reset();
-            verticalCorrection = 0;
-        }*/
+           // do_basealign_dist = false;
+        }
 
     }
 
-    private void stackAlignupdate()
+    private void stackAlignUpdate()
     {
 
+        if (do_stackalign == false )  {
+            horizontalCorrection = 0;
+            return;
+        }
 
         d3 = TOF3.getDistance(DistanceUnit.CM);
         d4 = TOF4.getDistance(DistanceUnit.CM);
@@ -141,18 +161,17 @@ public class  StackingAlign implements Subsystem {
         // check whether job is done
         if (d3 > horizontalDetectRange && d4 > horizontalDetectRange) {
             horizontalCorrection = 0;
-            skip_horizontal = true;
             return;
         }
 
         if ( Math.abs(distance - stackAlignDistance) < TOF_ERR_MAX ) {
             horizontalCorrection = 0;
-            do_align = false;
+            do_stackalign = false;
             stackAlignController.reset();
             /* reset other PID too,  since adjust has done */
 
-           foundationAngleController.reset();
-           foundationDistanceController.reset();
+           //foundationAngleController.reset();
+           //foundationDistanceController.reset();
         } else {
             horizontalCorrection = Math.abs(stackAlignController.update(distance));
         }
@@ -170,17 +189,14 @@ public class  StackingAlign implements Subsystem {
 
     public void testalign() {
         foundationAlignUpdate();
-        stackAlignupdate();
+        stackAlignUpdate();
     }
 
 
     @Override
     public void update() {
-        if (do_align) {
-                    foundationAlignUpdate();
-                    stackAlignupdate();
-        }
-
+        foundationAlignUpdate();
+        stackAlignUpdate();
     }
 
     @Override
